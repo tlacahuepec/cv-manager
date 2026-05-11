@@ -6,9 +6,9 @@
 *.private
 
 # --- Generated resumes & archives ---
-resumes/*.pdf
-resumes/*.docx
-resumes/*.html
+# Rendered outputs contain personal data; ignore everything but .gitkeep.
+resumes/*
+!resumes/.gitkeep
 resumes/archive/
 
 # --- LaTeX build artifacts ---

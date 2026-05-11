@@ -1,73 +1,168 @@
 {
+  "contact": {
+    "name": "Edward Santiesteban",
+    "title": "Senior Engineer",
+    "location": "Keller, TX 76248",
+    "phone": "678-599-2386",
+    "email": "santiesteban@outlook.com",
+    "linkedin": "linkedin.com/in/jaimesantiesteban"
+  },
+  "summary": "Senior Software Engineer with 15+ years of experience designing, developing, and deploying robust, scalable solutions across backend, frontend, and cloud environments. Proven expertise in Java, Spring Boot, Angular and cloud platforms such as Azure, with hands-on experience in microservices architecture, system integration, and container orchestration (Kubernetes/Docker). Adept at leading full software development lifecycles—including requirements analysis, solution design, coding, testing, and deployment—within agile, cross-functional teams. Skilled in delivering value through CI/CD pipelines (GitHub Actions, Azure DevOps), modern test automation, and process improvement. Active promoter of AI-assisted development, using GitHub Copilot to drive team productivity and innovation. Recognized for mentoring engineers, driving technical excellence, and collaborating to deliver high-quality digital products.",
   "experiences": [
     {
       "title": "Senior Software Engineer",
-      "company": "Acme Corp",
-      "location": "Remote",
-      "start_date": "2023-01",
+      "company": "American Airlines",
+      "location": "Fort Worth, TX",
+      "start_date": "2018-01",
       "end_date": "Present",
       "highlights": [
-        "Led migration of legacy monolith to microservices, cutting p95 latency by 40%.",
-        "Mentored 4 engineers; established team coding standards and review process.",
-        "Designed and shipped feature X used by 100k+ monthly users."
+        "Architected and led modernization of mission-critical Java and Angular platforms, reducing technical debt and enabling scalable solutions.",
+        "Designed and implemented microservices integrations, migrating legacy QPX workflows to QPXConnect and RESTful services.",
+        "Championed cloud adoption by containerizing services with Docker and orchestrating deployments on Kubernetes with CI/CD pipelines (Jenkins, GitHub Actions).",
+        "Automated complex business processes such as overbooking alerts and customer compensation bidding.",
+        "Served as GitHub Copilot Champion; evangelized AI-assisted development and mentored engineering teams on best practices.",
+        "Developed end-to-end features across web (Angular), backend (Spring Boot), and mobile (Android/Kotlin) platforms.",
+        "Provided technical leadership and mentorship to full stack and platform engineers; led architecture reviews and design sessions.",
+        "Collaborated with stakeholders across product, UX, QA, and engineering to translate business requirements into scalable technical solutions."
       ],
-      "tech": ["Python", "Go", "Kubernetes", "PostgreSQL"]
+      "tech": ["Java", "Spring Boot", "Angular", "Kotlin", "Docker", "Kubernetes", "Azure", "GitHub Actions", "Jenkins", "PostgreSQL", "Oracle"]
     },
     {
-      "title": "Software Engineer",
-      "company": "Initech",
-      "location": "City, Country",
-      "start_date": "2020-06",
-      "end_date": "2022-12",
+      "title": "Senior Android Engineer",
+      "company": "Wells Fargo, LLC",
+      "location": "San Francisco, CA",
+      "start_date": "2017-02",
+      "end_date": "2018-01",
       "highlights": [
-        "Built core billing pipeline processing $X/month.",
-        "Reduced CI runtime from 25 min to 6 min via caching and parallelization."
+        "Led architecture, development, and deployment of Wells Fargo Greenhouse, a digital banking and budgeting app.",
+        "Implemented MVVM architecture with Android Data Binding for scalable, maintainable code.",
+        "Built custom views and optimized UI performance with ConstraintLayout.",
+        "Developed asynchronous APIs with RxJava and RxAndroid.",
+        "Created unit tests with JUnit and Mockito; automated UI testing with Espresso.",
+        "Collaborated with BAs, designers, and QA using Agile/SCRUM workflows."
       ],
-      "tech": ["TypeScript", "Node.js", "AWS"]
+      "tech": ["Kotlin", "Android", "MVVM", "RxJava", "Dagger", "Retrofit", "JUnit", "Espresso", "GitHub"]
+    },
+    {
+      "title": "Senior Android Engineer",
+      "company": "Domino's Pizza, LLC",
+      "location": "Ann Arbor, MI",
+      "start_date": "2016-01",
+      "end_date": "2017-02",
+      "highlights": [
+        "Delivered new features and enhancements for Domino's high-traffic Android e-commerce app.",
+        "Handled full development lifecycle from architecture and implementation to testing and deployment.",
+        "Improved app performance and reduced build size through profiling and optimization.",
+        "Created comprehensive test suites with JUnit, Mockito, and Espresso.",
+        "Collaborated with cross-functional teams using JIRA, Confluence, and Bitbucket in Agile environment."
+      ],
+      "tech": ["Kotlin", "Android", "Espresso", "Mockito", "JUnit", "Google Play Services", "Bitbucket", "Nexus"]
+    },
+    {
+      "title": "Senior Android Engineer",
+      "company": "Mobile Apps Co.",
+      "location": "Atlanta, GA",
+      "start_date": "2012-05",
+      "end_date": "2016-01",
+      "highlights": [
+        "Consulted for enterprise clients including Dropbox, Kinetic Farm, Costco, Morgan Stanley, and Genuine Parts Company.",
+        "Dropbox: Migrated to RecyclerView/CardView, integrated Android Wear, in-app payments, offline caching, and Retrofit; led CI/CD with Jenkins.",
+        "Kinetic Farm: Led Android development; implemented Material Design UI, Volley, SQLite, BroadcastReceivers, and TDD with JUnit.",
+        "Costco: Modernized UI, added Maps API integration, push notifications, and developed with Retrofit and ORMLite.",
+        "Morgan Stanley: Built custom widgets, secure communications with encryption, REST APIs with Jersey/GSON, instrumented with New Relic.",
+        "Genuine Parts Company: Built NAPA Know How and TRACS apps using MVP; used SyncAdapters, Loaders, and analytics (Flurry, Answers)."
+      ],
+      "tech": ["Kotlin", "Android", "Material Design", "Retrofit", "Volley", "SQLite", "Jenkins", "New Relic", "RxJava"]
+    },
+    {
+      "title": "Senior Software Developer",
+      "company": "Avon",
+      "location": "New York City, NY",
+      "start_date": "2010-02",
+      "end_date": "2012-05",
+      "highlights": [
+        "Acted as Mobile Software Architect for internal and consumer-facing iOS and Android applications.",
+        "Designed and built secure desktop software for identity verification and background checks.",
+        "Developed web/client-server apps using C#, Oracle, Entity Framework, and JavaScript.",
+        "Built front-end integrations using jQuery, HTML5, and ASP.NET.",
+        "Analyzed event logs to detect bugs and optimize performance issues."
+      ],
+      "tech": ["Java", "C#", "ASP.NET", "JavaScript", "jQuery", "Android", "iOS", "Oracle", "Entity Framework"]
+    },
+    {
+      "title": "Senior Software Developer",
+      "company": "Volkswagen",
+      "location": "Mexico City, Mexico",
+      "start_date": "2008-10",
+      "end_date": "2010-02",
+      "highlights": [
+        "Developed front-end web apps using HTML, CSS, PHP, and MySQL.",
+        "Coordinated mobile development with architecture and security teams.",
+        "Documented internal and external integration points and managed requirements.",
+        "Participated in code reviews to uphold software quality standards.",
+        "Built internal version control and workflow tracking tools; predated SVN adoption.",
+        "Monitored events for debugging and optimizing application performance."
+      ],
+      "tech": ["HTML", "CSS", "PHP", "MySQL", "JavaScript", "Java"]
     }
   ],
   "education": [
     {
-      "degree": "B.Sc. in Computer Science",
-      "institution": "Example University",
-      "location": "City, Country",
-      "start_date": "2016",
-      "end_date": "2020",
-      "notes": "GPA, honors, or relevant coursework (optional)."
+      "degree": "Bachelor of Computer Science",
+      "institution": "Benemérita Universidad Autónoma de Puebla",
+      "location": "Puebla, Mexico",
+      "start_date": "2004",
+      "end_date": "2008",
+      "notes": "Comprehensive computer science education with focus on software development and systems architecture."
     }
   ],
   "skills": [
     {
-      "category": "Languages",
-      "items": ["Python", "Go", "TypeScript", "SQL"]
+      "category": "Programming Languages & Frameworks",
+      "items": ["Java", "Spring Boot", "JavaScript/TypeScript", "Kotlin", "Angular", "React", "Node.js", "C#", "ASP.NET", "PHP", "JSP", "Hibernate", "MyBatis"]
     },
     {
-      "category": "Infrastructure",
-      "items": ["Kubernetes", "Docker", "Terraform", "AWS"]
+      "category": "Cloud, DevOps & Infrastructure",
+      "items": ["Azure (AKS, EventHub)", "Kubernetes", "Docker", "Cloud Foundry", "Jenkins", "GitHub Actions", "GitLab CI", "Azure DevOps", "Maven", "Gradle", "Linux/Unix Shell Scripting", "Apache Tomcat"]
     },
     {
-      "category": "Tools",
-      "items": ["Git", "GitHub Actions", "Linux"]
-    }
-  ],
-  "projects": [
+      "category": "Data Management & Integration",
+      "items": ["Oracle", "PostgreSQL", "MySQL", "SQL Server", "DB2", "Redis", "IBM MQ", "RabbitMQ", "REST (JSON)", "SOAP (WSDL/XML)"]
+    },
     {
-      "name": "Project Name",
-      "url": "https://github.com/your-handle/project",
-      "description": "One-line description of what the project does and why it matters.",
-      "tech": ["Python", "FastAPI"]
+      "category": "Testing, Quality & Security",
+      "items": ["JUnit", "Mockito", "Espresso", "Selenium", "Postman", "SonarQube", "Trivy", "TDD", "OAuth2", "CI/CD"]
+    },
+    {
+      "category": "Architecture, Observability & Monitoring",
+      "items": ["Microservices", "Domain-Driven Design (DDD)", "MVVM", "Event-Driven Architecture", "ElasticSearch", "Logstash", "Kibana", "Dynatrace", "Splunk", "New Relic"]
+    },
+    {
+      "category": "Front-End & Mobile Development",
+      "items": ["Angular", "React", "HTML5", "CSS", "Responsive Design", "Android SDK", "Kotlin Coroutines", "Jetpack Compose", "Retrofit", "OkHTTP", "RxJava"]
+    },
+    {
+      "category": "Tools & Collaboration",
+      "items": ["Git", "GitHub", "GitLab", "JIRA", "Confluence", "Slack", "Microsoft Office Suite", "Bitbucket"]
     }
   ],
   "certifications": [
     {
-      "name": "Certification Name",
-      "issuer": "Issuing Org",
-      "date": "2024-03",
-      "url": "https://example.com/credential"
+      "name": "Oracle Certified Professional, Java SE 6 Programmer",
+      "issuer": "Oracle",
+      "date": "2009",
+      "url": ""
+    },
+    {
+      "name": "Oracle Certified Professional, Java EE 6 Web Component Developer",
+      "issuer": "Oracle",
+      "date": "2010",
+      "url": ""
     }
   ],
   "languages": [
-    { "name": "English", "level": "Native" },
-    { "name": "Spanish", "level": "Professional" }
-  ]
+    { "name": "English", "level": "Fluent" },
+    { "name": "Spanish", "level": "Native" }
+  ],
+  "projects": []
 }

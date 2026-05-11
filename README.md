@@ -63,13 +63,50 @@ pip install -r requirements.txt
 
 1. Edit `.env` and `data/cv_data.private.json`.
 2. Edit a template under `templates/` if you want a new look.
-3. (Phase 2) Run the generator to produce a CV under `resumes/`.
+3. Run the generator to produce a CV under `resumes/`.
+
+## Generating a CV
+
+After completing **Setup**, run:
+
+```powershell
+# default: templates/classic.tex
+python scripts/generate.py
+
+# pick a different template
+python scripts/generate.py --template classic.md
+```
+
+Output lands at `resumes/{name_slug}_{template}_{YYYYMMDD}.{ext}` — e.g.
+`resumes/jane_doe_classic_20260510.tex`. All files in `resumes/` are gitignored
+(they contain your personal data).
+
+## PDF toolchain (Windows)
+
+The generator currently writes `.tex` and `.md` only. To produce PDFs, install
+the tools below; PDF compilation will be wired into the script in Phase 2.5.
+
+- **MiKTeX** (LaTeX → PDF): <https://miktex.org/download> — installer adds
+  `pdflatex` to PATH. Alternative: TeX Live (<https://www.tug.org/texlive/>).
+- **Pandoc** (Markdown → PDF/HTML/DOCX): <https://pandoc.org/installing.html>
+  or `winget install --id JohnMacFarlane.Pandoc`.
+
+Manual compilation in the meantime:
+
+```powershell
+# LaTeX → PDF
+pdflatex -output-directory resumes resumes\jane_doe_classic_20260510.tex
+
+# Markdown → PDF (requires a LaTeX engine for pandoc's PDF writer)
+pandoc resumes\jane_doe_classic_20260510.md -o resumes\jane_doe_classic_20260510.pdf
+```
 
 ## Roadmap
 
-- **Phase 1 (this commit):** structure, privacy, templates, dependencies.
-- **Phase 2:** `scripts/generate.py` — merge env + JSON, render Jinja, run
-  `pdflatex` / `pandoc`, emit timestamped PDFs into `resumes/`.
+- **Phase 1:** structure, privacy, templates, dependencies.
+- **Phase 2 (this commit):** `scripts/generate.py` — render Jinja templates
+  to `resumes/` from `.env` + private JSON.
+- **Phase 2.5:** auto-run `pdflatex` / `pandoc` to emit PDFs.
 - **Phase 3:** Flask web UI to edit data, preview, and download.
 - **Phase 4:** More templates (modern, minimal), version history, CI builds.
 
