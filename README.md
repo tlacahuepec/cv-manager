@@ -70,43 +70,44 @@ pip install -r requirements.txt
 After completing **Setup**, run:
 
 ```powershell
-# default: templates/classic.tex
+# default: templates/classic.tex (writes .tex only)
 python scripts/generate.py
 
 # pick a different template
 python scripts/generate.py --template classic.md
+
+# also compile to PDF (requires pdflatex for .tex, pandoc for .md)
+python scripts/generate.py --template classic.tex --pdf
 ```
 
 Output lands at `resumes/{name_slug}_{template}_{YYYYMMDD}.{ext}` — e.g.
-`resumes/jane_doe_classic_20260510.tex`. All files in `resumes/` are gitignored
-(they contain your personal data).
+`resumes/jane_doe_classic_20260510.tex` (and `.pdf` when `--pdf` is set).
+All files in `resumes/` are gitignored (they contain your personal data).
 
 ## PDF toolchain (Windows)
 
-The generator currently writes `.tex` and `.md` only. To produce PDFs, install
-the tools below; PDF compilation will be wired into the script in Phase 2.5.
+PDF compilation (`--pdf`) requires one of these tools on PATH:
 
 - **MiKTeX** (LaTeX → PDF): <https://miktex.org/download> — installer adds
   `pdflatex` to PATH. Alternative: TeX Live (<https://www.tug.org/texlive/>).
 - **Pandoc** (Markdown → PDF/HTML/DOCX): <https://pandoc.org/installing.html>
-  or `winget install --id JohnMacFarlane.Pandoc`.
+  or `winget install --id JohnMacFarlane.Pandoc`. Pandoc's PDF writer also
+  needs a LaTeX engine.
 
-Manual compilation in the meantime:
+The script auto-detects each tool and prints an install hint if it's missing.
+You can still compile manually if you prefer:
 
 ```powershell
-# LaTeX → PDF
 pdflatex -output-directory resumes resumes\jane_doe_classic_20260510.tex
-
-# Markdown → PDF (requires a LaTeX engine for pandoc's PDF writer)
 pandoc resumes\jane_doe_classic_20260510.md -o resumes\jane_doe_classic_20260510.pdf
 ```
 
 ## Roadmap
 
 - **Phase 1:** structure, privacy, templates, dependencies.
-- **Phase 2 (this commit):** `scripts/generate.py` — render Jinja templates
-  to `resumes/` from `.env` + private JSON.
-- **Phase 2.5:** auto-run `pdflatex` / `pandoc` to emit PDFs.
+- **Phase 2:** `scripts/generate.py` — render Jinja templates from `.env` +
+  private JSON.
+- **Phase 2.5 (this commit):** `--pdf` flag auto-runs `pdflatex` / `pandoc`.
 - **Phase 3:** Flask web UI to edit data, preview, and download.
 - **Phase 4:** More templates (modern, minimal), version history, CI builds.
 

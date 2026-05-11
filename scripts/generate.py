@@ -14,6 +14,8 @@ import argparse
 import json
 import os
 import re
+import shutil
+import subprocess
 import sys
 from datetime import date
 from pathlib import Path
@@ -125,6 +127,55 @@ def render(template_name: str, out_dir: Path) -> Path:
     return out_path
 
 
+LATEX_AUX_SUFFIXES = (".aux", ".log", ".out", ".toc", ".synctex.gz", ".fls", ".fdb_latexmk")
+
+
+def _run(cmd: list[str], cwd: Path) -> subprocess.CompletedProcess:
+    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
+
+
+def _print_failure(tool: str, result: subprocess.CompletedProcess) -> None:
+    output = (result.stdout or "") + (result.stderr or "")
+    tail = "\n".join(output.splitlines()[-30:])
+    print(f"error: {tool} failed (exit {result.returncode})\n{tail}", file=sys.stderr)
+
+
+def compile_pdf(source: Path) -> Path:
+    """Compile a rendered .tex or .md file to PDF. Returns the PDF path."""
+    out_dir = source.parent
+    pdf_path = source.with_suffix(".pdf")
+    suffix = source.suffix.lower()
+
+    if suffix == ".tex":
+        if not shutil.which("pdflatex"):
+            _die("pdflatex not found on PATH. Install MiKTeX (https://miktex.org/download) or TeX Live.")
+        cmd = ["pdflatex", "-interaction=nonstopmode", "-output-directory", str(out_dir), str(source)]
+        # Run twice so cross-references / TOC settle.
+        for _ in range(2):
+            result = _run(cmd, cwd=out_dir)
+            if result.returncode != 0:
+                _print_failure("pdflatex", result)
+                sys.exit(1)
+        # Clean aux files.
+        stem = source.stem
+        for suf in LATEX_AUX_SUFFIXES:
+            aux = out_dir / f"{stem}{suf}"
+            if aux.exists():
+                aux.unlink()
+    elif suffix == ".md":
+        if not shutil.which("pandoc"):
+            _die("pandoc not found on PATH. Install from https://pandoc.org/installing.html or `winget install JohnMacFarlane.Pandoc`.")
+        cmd = ["pandoc", str(source), "-o", str(pdf_path)]
+        result = _run(cmd, cwd=out_dir)
+        if result.returncode != 0:
+            _print_failure("pandoc", result)
+            sys.exit(1)
+    else:
+        _die(f"don't know how to compile {suffix} to PDF")
+
+    return pdf_path
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
@@ -138,10 +189,19 @@ def main() -> None:
         default=ROOT / "resumes",
         help="Output directory (default: resumes/)",
     )
+    parser.add_argument(
+        "--pdf",
+        action="store_true",
+        help="Also compile to PDF (requires pdflatex for .tex, pandoc for .md)",
+    )
     args = parser.parse_args()
 
     out_path = render(args.template, args.out_dir)
     print(f"wrote {out_path.relative_to(ROOT)}")
+
+    if args.pdf:
+        pdf_path = compile_pdf(out_path)
+        print(f"wrote {pdf_path.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":
