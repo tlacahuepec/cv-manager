@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>cv-manager</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header>
+    <h1>cv-manager</h1>
+    <p class="muted">Local editor for <code>.env</code> + <code>data/cv_data.private.json</code>.</p>
+  </header>
+
+  <main>
+    <section id="env-section">
+      <h2>Identity &amp; contact (.env)</h2>
+      <div id="env-warning" class="warning" hidden>
+        <code>.env</code> not found &mdash; showing values from <code>.env.example</code>.
+        Saving will create <code>.env</code>.
+      </div>
+      <form id="env-form"></form>
+      <button id="save-env" type="button">Save .env</button>
+      <span id="env-status" class="status"></span>
+    </section>
+
+    <section id="data-section">
+      <h2>Structured data (cv_data.private.json)</h2>
+      <div id="data-warning" class="warning" hidden>
+        <code>cv_data.private.json</code> not found &mdash; showing example schema.
+        Saving will create the private file.
+      </div>
+      <textarea id="data-json" spellcheck="false"></textarea>
+      <div class="row">
+        <button id="save-data" type="button">Save JSON</button>
+        <span id="data-status" class="status"></span>
+      </div>
+    </section>
+
+    <section id="generate-section">
+      <h2>Generate</h2>
+      <div class="row">
+        <label>Template
+          <select id="template-select"></select>
+        </label>
+        <label><input type="checkbox" id="pdf-checkbox"> Compile to PDF</label>
+        <button id="generate-btn" type="button">Generate &amp; download</button>
+      </div>
+      <pre id="generate-status" class="status"></pre>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

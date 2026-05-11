@@ -33,9 +33,12 @@ ENV_EXAMPLE = ROOT / ".env.example"
 ENV_PREFIX = "CV_"
 
 
+class CVError(Exception):
+    """Recoverable error with a user-facing message."""
+
+
 def _die(msg: str) -> "None":
-    print(f"error: {msg}", file=sys.stderr)
-    sys.exit(1)
+    raise CVError(msg)
 
 
 def load_env_context() -> dict:
@@ -112,7 +115,12 @@ def render(template_name: str, out_dir: Path) -> Path:
     try:
         template = jenv.get_template(template_name)
     except TemplateNotFound:
-        available = sorted(p.name for p in TEMPLATES_DIR.iterdir() if p.is_file() and p.suffix in {".tex", ".md"})
+        available = sorted(
+            p.name for p in TEMPLATES_DIR.iterdir()
+            if p.is_file()
+            and p.suffix in {".tex", ".md"}
+            and p.name.lower() != "readme.md"
+        )
         _die(f"template {template_name!r} not found. Available: {', '.join(available)}")
 
     rendered = template.render(**context)
@@ -137,7 +145,7 @@ def _run(cmd: list[str], cwd: Path) -> subprocess.CompletedProcess:
 def _print_failure(tool: str, result: subprocess.CompletedProcess) -> None:
     output = (result.stdout or "") + (result.stderr or "")
     tail = "\n".join(output.splitlines()[-30:])
-    print(f"error: {tool} failed (exit {result.returncode})\n{tail}", file=sys.stderr)
+    raise CVError(f"{tool} failed (exit {result.returncode})\n{tail}")
 
 
 def compile_pdf(source: Path) -> Path:
@@ -155,7 +163,6 @@ def compile_pdf(source: Path) -> Path:
             result = _run(cmd, cwd=out_dir)
             if result.returncode != 0:
                 _print_failure("pdflatex", result)
-                sys.exit(1)
         # Clean aux files.
         stem = source.stem
         for suf in LATEX_AUX_SUFFIXES:
@@ -169,7 +176,6 @@ def compile_pdf(source: Path) -> Path:
         result = _run(cmd, cwd=out_dir)
         if result.returncode != 0:
             _print_failure("pandoc", result)
-            sys.exit(1)
     else:
         _die(f"don't know how to compile {suffix} to PDF")
 
@@ -196,12 +202,16 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    out_path = render(args.template, args.out_dir)
-    print(f"wrote {out_path.relative_to(ROOT)}")
+    try:
+        out_path = render(args.template, args.out_dir)
+        print(f"wrote {out_path.relative_to(ROOT)}")
 
-    if args.pdf:
-        pdf_path = compile_pdf(out_path)
-        print(f"wrote {pdf_path.relative_to(ROOT)}")
+        if args.pdf:
+            pdf_path = compile_pdf(out_path)
+            print(f"wrote {pdf_path.relative_to(ROOT)}")
+    except CVError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

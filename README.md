@@ -88,11 +88,30 @@ All files in `resumes/` are gitignored (they contain your personal data).
 
 PDF compilation (`--pdf`) requires one of these tools on PATH:
 
-- **MiKTeX** (LaTeX → PDF): <https://miktex.org/download> — installer adds
-  `pdflatex` to PATH. Alternative: TeX Live (<https://www.tug.org/texlive/>).
-- **Pandoc** (Markdown → PDF/HTML/DOCX): <https://pandoc.org/installing.html>
-  or `winget install --id JohnMacFarlane.Pandoc`. Pandoc's PDF writer also
-  needs a LaTeX engine.
+- **MiKTeX** (LaTeX → PDF) — provides `pdflatex`.
+- **Pandoc** (Markdown → PDF/HTML/DOCX). Pandoc's PDF writer also needs a
+  LaTeX engine (MiKTeX covers this).
+
+### Install via a package manager (recommended)
+
+```powershell
+# winget (built into Windows 10/11)
+winget install --id MiKTeX.MiKTeX
+winget install --id JohnMacFarlane.Pandoc
+
+# or Chocolatey
+choco install miktex pandoc
+
+# or Scoop
+scoop install latex pandoc
+```
+
+Open a new terminal after installing so PATH refreshes.
+
+### Manual installers
+
+- MiKTeX: <https://miktex.org/download> (alt: TeX Live, <https://www.tug.org/texlive/>)
+- Pandoc: <https://pandoc.org/installing.html>
 
 The script auto-detects each tool and prints an install hint if it's missing.
 You can still compile manually if you prefer:
@@ -102,13 +121,31 @@ pdflatex -output-directory resumes resumes\jane_doe_classic_20260510.tex
 pandoc resumes\jane_doe_classic_20260510.md -o resumes\jane_doe_classic_20260510.pdf
 ```
 
+## Web UI
+
+A small Flask app provides a browser editor for `.env` and the private JSON,
+plus a one-click generate/download button. It binds to **localhost only** and
+refuses non-loopback connections.
+
+```powershell
+.\.venv\Scripts\python.exe -m web.server
+# Open http://127.0.0.1:5000
+```
+
+Features:
+
+- Edit identity/contact fields, save to `.env`.
+- Edit the structured JSON in a textarea (validated before save).
+- Pick a template, optionally compile to PDF, download the result.
+
 ## Roadmap
 
 - **Phase 1:** structure, privacy, templates, dependencies.
 - **Phase 2:** `scripts/generate.py` — render Jinja templates from `.env` +
   private JSON.
-- **Phase 2.5 (this commit):** `--pdf` flag auto-runs `pdflatex` / `pandoc`.
-- **Phase 3:** Flask web UI to edit data, preview, and download.
+- **Phase 2.5:** `--pdf` flag auto-runs `pdflatex` / `pandoc`.
+- **Phase 3 (this commit):** Flask web UI (localhost-only) to edit data and
+  download generated CVs.
 - **Phase 4:** More templates (modern, minimal), version history, CI builds.
 
 ## Security notes
