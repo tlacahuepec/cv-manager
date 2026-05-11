@@ -153,3 +153,7 @@ Features:
 - Never commit `.env` or any `*.private.*` file. They are already gitignored.
 - If you accidentally stage one: `git restore --staged <file>` before commit.
 - For extra safety, consider a `detect-secrets` pre-commit hook (Phase 2+).
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for release history.
