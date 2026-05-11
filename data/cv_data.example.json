@@ -1,0 +1,73 @@
+{
+  "experiences": [
+    {
+      "title": "Senior Software Engineer",
+      "company": "Acme Corp",
+      "location": "Remote",
+      "start_date": "2023-01",
+      "end_date": "Present",
+      "highlights": [
+        "Led migration of legacy monolith to microservices, cutting p95 latency by 40%.",
+        "Mentored 4 engineers; established team coding standards and review process.",
+        "Designed and shipped feature X used by 100k+ monthly users."
+      ],
+      "tech": ["Python", "Go", "Kubernetes", "PostgreSQL"]
+    },
+    {
+      "title": "Software Engineer",
+      "company": "Initech",
+      "location": "City, Country",
+      "start_date": "2020-06",
+      "end_date": "2022-12",
+      "highlights": [
+        "Built core billing pipeline processing $X/month.",
+        "Reduced CI runtime from 25 min to 6 min via caching and parallelization."
+      ],
+      "tech": ["TypeScript", "Node.js", "AWS"]
+    }
+  ],
+  "education": [
+    {
+      "degree": "B.Sc. in Computer Science",
+      "institution": "Example University",
+      "location": "City, Country",
+      "start_date": "2016",
+      "end_date": "2020",
+      "notes": "GPA, honors, or relevant coursework (optional)."
+    }
+  ],
+  "skills": [
+    {
+      "category": "Languages",
+      "items": ["Python", "Go", "TypeScript", "SQL"]
+    },
+    {
+      "category": "Infrastructure",
+      "items": ["Kubernetes", "Docker", "Terraform", "AWS"]
+    },
+    {
+      "category": "Tools",
+      "items": ["Git", "GitHub Actions", "Linux"]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Project Name",
+      "url": "https://github.com/your-handle/project",
+      "description": "One-line description of what the project does and why it matters.",
+      "tech": ["Python", "FastAPI"]
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Certification Name",
+      "issuer": "Issuing Org",
+      "date": "2024-03",
+      "url": "https://example.com/credential"
+    }
+  ],
+  "languages": [
+    { "name": "English", "level": "Native" },
+    { "name": "Spanish", "level": "Professional" }
+  ]
+}

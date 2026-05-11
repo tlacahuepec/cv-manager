@@ -1,0 +1,46 @@
+# --- Secrets / private data (never commit) ---
+.env
+.env.*
+!.env.example
+*.private.*
+*.private
+
+# --- Generated resumes & archives ---
+resumes/*.pdf
+resumes/*.docx
+resumes/*.html
+resumes/archive/
+
+# --- LaTeX build artifacts ---
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.bbl
+*.blg
+*.nav
+*.snm
+*.vrb
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.Python
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Editor / OS ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

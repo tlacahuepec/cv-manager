@@ -1,0 +1,116 @@
+% classic.tex — cv-manager LaTeX template
+% Rendered with Jinja2 using custom delimiters to avoid collision with LaTeX braces:
+%   variables: << var >>
+%   blocks:    <% if x %> ... <% endif %>
+%   comments:  <# ... #>
+%
+% Identity fields come from environment variables (.env).
+% Structured lists come from data/cv_data.private.json.
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{xcolor}
+
+\definecolor{accent}{HTML}{2A6DB0}
+
+\hypersetup{colorlinks=true, urlcolor=accent}
+
+\titleformat{\section}{\large\bfseries\color{accent}}{}{0em}{}[\titlerule]
+\titlespacing*{\section}{0pt}{10pt}{6pt}
+
+\setlist[itemize]{leftmargin=*,nosep,topsep=2pt}
+
+\pagestyle{empty}
+
+\begin{document}
+
+% --- Header ---
+\begin{center}
+    {\Huge\bfseries << full_name >>}\\[2pt]
+    {\large << headline >>}\\[4pt]
+    \small
+    \href{mailto:<< email >>}{<< email >>} \;|\;
+    << phone >> \;|\;
+    << location >> \\
+    \href{<< linkedin >>}{LinkedIn} \;|\;
+    \href{<< github >>}{GitHub} \;|\;
+    \href{<< website >>}{<< website >>}
+\end{center}
+
+% --- Summary ---
+<% if summary %>
+\section*{Summary}
+<< summary >>
+<% endif %>
+
+% --- Experience ---
+<% if experiences %>
+\section*{Experience}
+<% for exp in experiences %>
+\textbf{<< exp.title >>} \hfill << exp.start_date >> -- << exp.end_date >>\\
+\textit{<< exp.company >>}<% if exp.location %>, << exp.location >><% endif %>
+\begin{itemize}
+<% for h in exp.highlights %>
+    \item << h >>
+<% endfor %>
+\end{itemize}
+<% if exp.tech %>\textit{Tech:} << exp.tech | join(', ') >>\\<% endif %>
+\vspace{4pt}
+<% endfor %>
+<% endif %>
+
+% --- Education ---
+<% if education %>
+\section*{Education}
+<% for ed in education %>
+\textbf{<< ed.degree >>} \hfill << ed.start_date >> -- << ed.end_date >>\\
+\textit{<< ed.institution >>}<% if ed.location %>, << ed.location >><% endif %>
+<% if ed.notes %>\\<< ed.notes >><% endif %>
+\vspace{4pt}
+<% endfor %>
+<% endif %>
+
+% --- Skills ---
+<% if skills %>
+\section*{Skills}
+\begin{itemize}
+<% for group in skills %>
+    \item \textbf{<< group.category >>:} << group['items'] | join(', ') >>
+<% endfor %>
+\end{itemize}
+<% endif %>
+
+% --- Projects ---
+<% if projects %>
+\section*{Projects}
+<% for p in projects %>
+\textbf{<< p.name >>}<% if p.url %> \;|\; \href{<< p.url >>}{link}<% endif %>\\
+<< p.description >>
+<% if p.tech %>\\ \textit{Tech:} << p.tech | join(', ') >><% endif %>
+\vspace{4pt}
+<% endfor %>
+<% endif %>
+
+% --- Certifications ---
+<% if certifications %>
+\section*{Certifications}
+\begin{itemize}
+<% for c in certifications %>
+    \item \textbf{<< c.name >>} -- << c.issuer >><% if c.date %> (<< c.date >>)<% endif %>
+<% endfor %>
+\end{itemize}
+<% endif %>
+
+% --- Languages ---
+<% if languages %>
+\section*{Languages}
+<% for l in languages %><< l.name >> (<< l.level >>)<% if not loop.last %> \;|\; <% endif %><% endfor %>
+<% endif %>
+
+\end{document}
