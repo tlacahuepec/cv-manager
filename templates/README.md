@@ -39,3 +39,8 @@ The generator script will configure Jinja's `Environment` with the right delimit
 
 - `classic.tex` — traditional single-column LaTeX CV with a colored accent.
 - `classic.md` — Markdown counterpart for quick previews / pandoc conversion.
+- `modern.tex` — two-column LaTeX with a tinted sidebar (contact, skills,
+  languages, certifications). Requires the `paracol` and `fontawesome5`
+  packages (bundled with MiKTeX / TeX Live).
+- `minimal.md` — plain-text Markdown optimized for ATS resume scanners
+  (no tables, no decorations, single column, ALL-CAPS section headings).

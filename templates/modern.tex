@@ -1,0 +1,123 @@
+% modern.tex -- cv-manager LaTeX template (two-column / sidebar)
+% See templates/README.md for delimiter conventions.
+% Requires the paracol and fontawesome5 packages (bundled with MiKTeX / TeX Live).
+
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=0.6in]{geometry}
+\usepackage{paracol}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{fontawesome5}
+
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{sidebar}{HTML}{F1F4F8}
+\definecolor{muted}{HTML}{555555}
+
+\hypersetup{colorlinks=true, urlcolor=accent}
+
+\setlength{\columnsep}{0.5in}
+\setlength{\parindent}{0pt}
+
+\titleformat{\section}{\large\bfseries\color{accent}}{}{0em}{}[\titlerule]
+\titlespacing*{\section}{0pt}{8pt}{4pt}
+
+\setlist[itemize]{leftmargin=*,nosep,topsep=2pt}
+\pagestyle{empty}
+
+\begin{document}
+
+% --- Header ---
+{\Huge\bfseries\color{accent} << full_name >>}\\[2pt]
+{\large\color{muted} << headline >>}\\[6pt]
+\hrule
+\vspace{8pt}
+
+\columnratio{0.32}
+\begin{paracol}{2}
+
+% =================== LEFT COLUMN (sidebar) ===================
+\backgroundcolor{c[0]}{sidebar}
+
+\section*{Contact}
+\small
+\faEnvelope\ \href{mailto:<< email >>}{<< email >>}\\
+\faPhone\ << phone >>\\
+\faMapMarker*\ << location >>\\
+<% if linkedin %>\faLinkedin\ \href{<< linkedin >>}{LinkedIn}\\<% endif %>
+<% if github %>\faGithub\ \href{<< github >>}{GitHub}\\<% endif %>
+<% if website %>\faGlobe\ \href{<< website >>}{Website}\\<% endif %>
+
+<% if skills %>
+\section*{Skills}
+<% for group in skills %>
+\textbf{<< group.category >>}\\
+\small << group['items'] | join(', ') >>\\[4pt]
+<% endfor %>
+<% endif %>
+
+<% if languages %>
+\section*{Languages}
+<% for l in languages %>
+\textbf{<< l.name >>} \hfill \small << l.level >>\\
+<% endfor %>
+<% endif %>
+
+<% if certifications %>
+\section*{Certifications}
+<% for c in certifications %>
+\textbf{<< c.name >>}\\
+\small << c.issuer >><% if c.date %> -- << c.date >><% endif %>\\[4pt]
+<% endfor %>
+<% endif %>
+
+\switchcolumn
+
+% =================== RIGHT COLUMN (main) ===================
+<% if summary %>
+\section*{Summary}
+<< summary >>
+<% endif %>
+
+<% if experiences %>
+\section*{Experience}
+<% for exp in experiences %>
+\textbf{<< exp.title >>} \hfill << exp.start_date >> -- << exp.end_date >>\\
+\textit{<< exp.company >>}<% if exp.location %>, << exp.location >><% endif %>
+\begin{itemize}
+<% for h in exp.highlights %>
+    \item << h >>
+<% endfor %>
+\end{itemize}
+<% if exp.tech %>\textit{\small Tech: << exp.tech | join(', ') >>}\\<% endif %>
+\vspace{4pt}
+<% endfor %>
+<% endif %>
+
+<% if education %>
+\section*{Education}
+<% for ed in education %>
+\textbf{<< ed.degree >>} \hfill << ed.start_date >> -- << ed.end_date >>\\
+\textit{<< ed.institution >>}<% if ed.location %>, << ed.location >><% endif %>
+<% if ed.notes %>\\\small << ed.notes >><% endif %>
+\vspace{4pt}
+<% endfor %>
+<% endif %>
+
+<% if projects %>
+\section*{Projects}
+<% for p in projects %>
+\textbf{<< p.name >>}<% if p.url %> \;|\; \href{<< p.url >>}{link}<% endif %>\\
+<< p.description >>
+<% if p.tech %>\\ \textit{\small Tech: << p.tech | join(', ') >>}<% endif %>
+\vspace{4pt}
+<% endfor %>
+<% endif %>
+
+\end{paracol}
+
+\end{document}
