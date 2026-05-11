@@ -4,7 +4,8 @@
 {{ email }} | {{ phone }} | {{ location }}
 {{ linkedin }}
 {{ github }}
-{{ website }}
+{% if website %}{{ website }}
+{% endif %}
 
 {% if summary %}
 SUMMARY

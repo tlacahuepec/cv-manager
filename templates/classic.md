@@ -3,7 +3,7 @@
 **{{ headline }}**
 
 {{ email }} | {{ phone }} | {{ location }}
-[LinkedIn]({{ linkedin }}) | [GitHub]({{ github }}) | [{{ website }}]({{ website }})
+[LinkedIn]({{ linkedin }}) | [GitHub]({{ github }}){% if website %} | [{{ website }}]({{ website }}){% endif %}
 
 ---
 
