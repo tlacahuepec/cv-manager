@@ -47,6 +47,21 @@
       </div>
       <pre id="generate-status" class="status"></pre>
     </section>
+
+    <section id="match-section">
+      <h2>Match to Job Description</h2>
+      <p class="muted">Customize your last job experience to match a specific job description while preserving all other CV data.</p>
+      <label for="job-description">Paste job description:</label>
+      <textarea id="job-description" placeholder="Paste the full job description here..." spellcheck="false"></textarea>
+      <div class="row">
+        <label>Template
+          <select id="match-template-select"></select>
+        </label>
+        <label><input type="checkbox" id="match-pdf-checkbox"> Compile to PDF</label>
+        <button id="match-btn" type="button">Match &amp; generate</button>
+      </div>
+      <pre id="match-status" class="status"></pre>
+    </section>
   </main>
 
   <script src="{{ url_for('static', filename='app.js') }}"></script>

@@ -8,12 +8,14 @@ Binds to 127.0.0.1:5000. Refuses non-loopback connections defensively.
 
 from __future__ import annotations
 
+import copy
 import json
 import re
 import sys
 from pathlib import Path
 
 from flask import Flask, abort, jsonify, render_template, request, send_file
+from anthropic import Anthropic
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -111,6 +113,32 @@ def _list_templates() -> list[str]:
     )
 
 
+def _render_with_custom_data(template_name: str, out_dir: Path, custom_data: dict) -> Path:
+    """Render a template with custom CV data (used for job matching)."""
+    from scripts.generate import build_environment, slugify
+    from datetime import date
+
+    env_ctx = _read_env()
+    context = {**custom_data, **env_ctx}
+
+    jenv = build_environment(template_name)
+    try:
+        template = jenv.get_template(template_name)
+    except Exception as exc:
+        raise CVError(f"template error: {exc}")
+
+    rendered = template.render(**context)
+
+    name_slug = slugify(env_ctx["full_name"])
+    template_stem = Path(template_name).stem
+    ext = Path(template_name).suffix
+    today = date.today().strftime("%Y%m%d")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / f"{name_slug}_{template_stem}_matched_{today}{ext}"
+    out_path.write_text(rendered, encoding="utf-8")
+    return out_path
+
+
 @app.get("/")
 def index():
     return render_template("index.html")
@@ -166,6 +194,81 @@ def generate():
             out_path = compile_pdf(out_path)
     except CVError as exc:
         return jsonify({"ok": False, "error": str(exc)}), 400
+    return send_file(out_path, as_attachment=True, download_name=out_path.name)
+
+
+@app.post("/api/match-job")
+def match_job():
+    payload = request.get_json(silent=True) or {}
+    job_description = (payload.get("job_description") or "").strip()
+    template = payload.get("template", "classic.tex")
+    want_pdf = bool(payload.get("pdf", False))
+
+    if not job_description:
+        return jsonify({"ok": False, "error": "job_description is required"}), 400
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+", template):
+        return jsonify({"ok": False, "error": "invalid template name"}), 400
+
+    try:
+        data = _read_data()
+        if not data.get("experiences") or len(data["experiences"]) == 0:
+            raise CVError("No experience entries found in CV data")
+
+        client = Anthropic()
+        last_job = data["experiences"][-1]
+
+        prompt = f"""You are a resume expert. Analyze the job description and the candidate's last job experience, then generate updated highlights and technologies that emphasize relevant skills.
+
+Job Description:
+{job_description}
+
+Current job experience:
+- Title: {last_job.get('title', '')}
+- Company: {last_job.get('company', '')}
+- Current highlights: {json.dumps(last_job.get('highlights', []))}
+- Current tech: {json.dumps(last_job.get('tech', []))}
+
+Return ONLY a valid JSON object (no markdown, no extra text) with this exact structure:
+{{
+  "highlights": ["highlight 1", "highlight 2", "highlight 3", "highlight 4", "highlight 5", "highlight 6"],
+  "tech": ["tech1", "tech2", "tech3", "tech4", "tech5", "tech6", "tech7", "tech8"]
+}}
+
+Guidelines:
+- Generate 5-6 new achievement bullets that emphasize skills matching the job description
+- Extract 5-8 technologies from the job description that align with the candidate's experience
+- Keep bullets concise and measurable when possible
+- Ensure tech choices are realistic based on the job description and current experience
+- Do not include bullets already similar to existing ones"""
+
+        response = client.messages.create(
+            model="claude-opus-4-7",
+            max_tokens=500,
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        response_text = response.content[0].text.strip()
+        try:
+            matched_data = json.loads(response_text)
+        except json.JSONDecodeError:
+            raise CVError("Failed to parse Claude response as JSON")
+
+        if not isinstance(matched_data, dict):
+            raise CVError("Invalid response format from Claude")
+
+        matched_cv = copy.deepcopy(data)
+        matched_cv["experiences"][-1]["highlights"] = matched_data.get("highlights", [])
+        matched_cv["experiences"][-1]["tech"] = matched_data.get("tech", [])
+
+        out_path = _render_with_custom_data(template, ROOT / "resumes", matched_cv)
+        if want_pdf:
+            out_path = compile_pdf(out_path)
+
+    except CVError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+    except Exception as exc:
+        return jsonify({"ok": False, "error": f"Internal error: {str(exc)}"}), 500
+
     return send_file(out_path, as_attachment=True, download_name=out_path.name)
 
 

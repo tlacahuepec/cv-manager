@@ -48,6 +48,13 @@ input[type="text"], textarea, select {
   font-size: 0.85rem;
 }
 
+#job-description {
+  width: 100%;
+  min-height: 240px;
+  font-family: inherit;
+  font-size: 0.92rem;
+}
+
 #env-form textarea { min-height: 70px; }
 
 button {

@@ -20,6 +20,7 @@ async function loadState() {
   renderEnvForm();
   renderDataTextarea();
   renderTemplateSelect();
+  renderMatchTemplateSelect();
   $("#env-warning").hidden = state.env_file_exists;
   $("#data-warning").hidden = state.data_file_exists;
 }
@@ -49,6 +50,17 @@ function renderDataTextarea() {
 
 function renderTemplateSelect() {
   const select = $("#template-select");
+  select.innerHTML = "";
+  for (const name of state.templates) {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    select.appendChild(opt);
+  }
+}
+
+function renderMatchTemplateSelect() {
+  const select = $("#match-template-select");
   select.innerHTML = "";
   for (const name of state.templates) {
     const opt = document.createElement("option");
@@ -130,6 +142,51 @@ $("#generate-btn").addEventListener("click", async () => {
   const disposition = res.headers.get("content-disposition") || "";
   const match = disposition.match(/filename="?([^"]+)"?/);
   const filename = match ? match[1] : "cv";
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  flash(status, `downloaded ${filename}`);
+});
+
+$("#match-btn").addEventListener("click", async () => {
+  const status = $("#match-status");
+  const jobDesc = $("#job-description").value.trim();
+
+  if (!jobDesc) {
+    flash(status, "please paste a job description", false);
+    return;
+  }
+
+  status.textContent = "analyzing job description...";
+  status.className = "status";
+
+  const res = await fetch("/api/match-job", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      job_description: jobDesc,
+      template: $("#match-template-select").value,
+      pdf: $("#match-pdf-checkbox").checked,
+    }),
+  });
+
+  if (!res.ok) {
+    let msg = "error";
+    try { msg = (await res.json()).error || msg; } catch {}
+    status.textContent = msg;
+    status.className = "status err";
+    return;
+  }
+
+  const disposition = res.headers.get("content-disposition") || "";
+  const match = disposition.match(/filename="?([^"]+)"?/);
+  const filename = match ? match[1] : "cv_matched";
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
