@@ -1,0 +1,256 @@
+% awesome.tex -- cv-manager LaTeX template inspired by Awesome-CV
+% Requires XeLaTeX for fontspec/Roboto support.
+% See templates/README.md for delimiter conventions.
+%
+% engine: xelatex
+
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[margin=0.75in]{geometry}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{fontspec}
+\usepackage{fontawesome5}
+\usepackage{array}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{etoolbox}
+
+% --- Fonts ---
+\setmainfont{Roboto}[
+  UprightFont = *-Regular,
+  BoldFont = *-Bold,
+  ItalicFont = *-Italic,
+  BoldItalicFont = *-BoldItalic,
+]
+\newfontfamily\lightfont{Roboto}[
+  UprightFont = *-Light,
+  ItalicFont = *-LightItalic,
+  BoldFont = *-Medium,
+  BoldItalicFont = *-MediumItalic,
+]
+\newfontfamily\thinfont{Roboto}[
+  UprightFont = *-Thin,
+  BoldFont = *-Light,
+]
+
+% --- Colors ---
+\definecolor{awesome-emerald}{HTML}{00A388}
+\definecolor{awesome-skyblue}{HTML}{0395DE}
+\definecolor{awesome-red}{HTML}{DC3522}
+\definecolor{awesome-pink}{HTML}{EF4089}
+\definecolor{awesome-orange}{HTML}{FF6138}
+\definecolor{awesome-nephritis}{HTML}{27AE60}
+\definecolor{awesome-concrete}{HTML}{95A5A6}
+\definecolor{awesome-darknight}{HTML}{131A28}
+
+\definecolor{darktext}{HTML}{414141}
+\definecolor{text}{HTML}{333333}
+\definecolor{graytext}{HTML}{5D5D5D}
+\definecolor{lighttext}{HTML}{999999}
+
+\colorlet{awesome}{awesome-skyblue}
+
+\hypersetup{colorlinks=true, urlcolor=awesome, linkcolor=awesome}
+
+% --- Page style ---
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\footnotesize\color{lighttext}\thinfont << full_name >> · Curriculum Vitae}
+\fancyfoot[R]{\footnotesize\color{lighttext}\thinfont\thepage}
+
+% --- Custom column types ---
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}p{#1}}
+
+% --- Style commands ---
+\newcommand{\sectionstyle}[1]{{\fontsize{14pt}{1em}\selectfont\bfseries\color{text}{\color{awesome}#1}}}
+\newcommand{\entrytitlestyle}[1]{{\fontsize{10pt}{1em}\selectfont\bfseries\color{darktext} #1}}
+\newcommand{\entrypositionstyle}[1]{{\fontsize{9pt}{1em}\selectfont\scshape\color{graytext} #1}}
+\newcommand{\entrydatestyle}[1]{{\fontsize{9pt}{1em}\lightfont\slshape\color{graytext} #1}}
+\newcommand{\entrylocationstyle}[1]{{\fontsize{9pt}{1em}\lightfont\slshape\color{awesome} #1}}
+\newcommand{\descriptionstyle}[1]{{\fontsize{9pt}{1em}\lightfont\color{text} #1}}
+\newcommand{\skilltypestyle}[1]{{\fontsize{10pt}{1em}\selectfont\bfseries\color{darktext} #1}}
+\newcommand{\skillsetstyle}[1]{{\fontsize{9pt}{1em}\lightfont\color{text} #1}}
+
+% --- Section command ---
+\newcommand{\cvsection}[1]{%
+  \vspace{6pt}%
+  \sectionstyle{#1}%
+  \phantomsection%
+  \color{lighttext}\hrulefill%
+  \vspace{4pt}%
+}
+
+% --- Entry command ---
+% \cventry{position}{title}{location}{date}{description}
+\newcommand{\cventry}[5]{%
+  \vspace{-1mm}
+  \setlength\tabcolsep{0pt}
+  \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} L{\textwidth - 4.5cm} R{4.5cm}}
+    \entrytitlestyle{#2} & \entrylocationstyle{#3} \\
+    \entrypositionstyle{#1} & \entrydatestyle{#4} \\
+  \end{tabular*}
+  \descriptionstyle{#5}
+}
+
+% --- Skill table ---
+\newenvironment{cvskills}{%
+  \vspace{2pt}
+  \begin{center}
+    \setlength\tabcolsep{1ex}
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} r L{\textwidth * \real{0.88}}}
+}{%
+    \end{tabular*}
+  \end{center}
+}
+\newcommand{\cvskill}[2]{%
+  \skilltypestyle{#1} & \skillsetstyle{#2} \\
+}
+
+% --- Item list ---
+\newenvironment{cvitems}{%
+  \vspace{-3mm}
+  \begin{itemize}[leftmargin=2ex, nosep, noitemsep]
+    \renewcommand{\labelitemi}{\color{awesome}\textbullet}
+    \setlength{\parskip}{0pt}
+}{%
+  \end{itemize}
+  \vspace{-3mm}
+}
+
+\begin{document}
+
+% =============================================================================
+% HEADER
+% =============================================================================
+\begin{center}
+  {\fontsize{30pt}{1em}\thinfont\color{graytext} << full_name.split()[0] >>}{\fontsize{30pt}{1em}\selectfont\bfseries\color{text} {} << full_name.split()[-1] >>}\\[3pt]
+  {\fontsize{9pt}{1em}\selectfont\scshape\color{awesome} << headline >>}\\[5pt]
+  {\fontsize{9pt}{1em}\lightfont\itshape\color{lighttext} << location >>}\\[4pt]
+  {\small
+    \faIcon{mobile-alt}\hspace{3pt}<< phone >>%
+    \quad\textbar\quad%
+    \href{mailto:<< email >>}{\faIcon{envelope}\hspace{3pt}<< email >>}%
+<% if linkedin %>
+    \quad\textbar\quad%
+    \href{<< linkedin >>}{\faIcon{linkedin}\hspace{3pt}LinkedIn}%
+<% endif %>
+<% if github %>
+    \quad\textbar\quad%
+    \href{<< github >>}{\faIcon{github}\hspace{3pt}GitHub}%
+<% endif %>
+<% if website %>
+    \quad\textbar\quad%
+    \href{<< website >>}{\faIcon{globe}\hspace{3pt}<< website >>}%
+<% endif %>
+  }
+\end{center}
+\vspace{2mm}
+
+% =============================================================================
+% SUMMARY
+% =============================================================================
+<% if summary %>
+\cvsection{Summary}
+\descriptionstyle{<< summary >>}
+\vspace{2mm}
+<% endif %>
+
+% =============================================================================
+% EXPERIENCE
+% =============================================================================
+<% if experiences %>
+\cvsection{Experience}
+<% for exp in experiences %>
+\cventry
+  {<< exp.title >>}
+  {<< exp.company >>}
+  {<< exp.location | default('', true) >>}
+  {<< exp.start_date >> -- << exp.end_date >>}
+  {}
+\begin{cvitems}
+<% for h in exp.highlights %>
+  \item << h >>
+<% endfor %>
+\end{cvitems}
+<% if exp.tech %>\vspace{-2mm}{\footnotesize\lightfont\color{graytext} << exp.tech | join(' · ') >>}\vspace{2mm}<% endif %>
+<% endfor %>
+<% endif %>
+
+% =============================================================================
+% EDUCATION
+% =============================================================================
+<% if education %>
+\cvsection{Education}
+<% for ed in education %>
+\cventry
+  {<< ed.degree >>}
+  {<< ed.institution >>}
+  {<< ed.location | default('', true) >>}
+  {<< ed.start_date >> -- << ed.end_date >>}
+  {<< ed.notes | default('', true) >>}
+\vspace{2mm}
+<% endfor %>
+<% endif %>
+
+% =============================================================================
+% SKILLS
+% =============================================================================
+<% if skills %>
+\cvsection{Skills}
+\begin{cvskills}
+<% for group in skills %>
+  \cvskill{<< group.category >>}{<< group['items'] | join(', ') >>}
+<% endfor %>
+\end{cvskills}
+<% endif %>
+
+% =============================================================================
+% PROJECTS
+% =============================================================================
+<% if projects %>
+\cvsection{Projects}
+<% for p in projects %>
+\cventry
+  {<< p.description >>}
+  {<< p.name >>}
+  {<% if p.url %>\href{<< p.url >>}{\faIcon{link}\hspace{2pt}source}<% endif %>}
+  {}
+  {}
+<% if p.tech %>\vspace{-2mm}{\footnotesize\lightfont\color{graytext} << p.tech | join(' · ') >>}\vspace{2mm}<% endif %>
+<% endfor %>
+<% endif %>
+
+% =============================================================================
+% CERTIFICATIONS
+% =============================================================================
+<% if certifications %>
+\cvsection{Certifications}
+<% for c in certifications %>
+\cventry
+  {<< c.issuer >>}
+  {<< c.name >>}
+  {<% if c.url %>\href{<< c.url >>}{\faIcon{link}}<% endif %>}
+  {<< c.date | default('', true) >>}
+  {}
+\vspace{1mm}
+<% endfor %>
+<% endif %>
+
+% =============================================================================
+% LANGUAGES
+% =============================================================================
+<% if languages %>
+\cvsection{Languages}
+\begin{cvskills}
+<% for l in languages %>
+  \cvskill{<< l.name >>}{<< l.level >>}
+<% endfor %>
+\end{cvskills}
+<% endif %>
+
+\end{document}
