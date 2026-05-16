@@ -1,5 +1,7 @@
 # cv-manager
 
+[![CI](https://github.com/tlacahuepec/cv-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/tlacahuepec/cv-manager/actions/workflows/ci.yml)
+
 Manage, generate, and store multiple resume/CV versions from templates.
 
 ## Project goal

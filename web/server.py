@@ -14,20 +14,20 @@ import re
 import sys
 from pathlib import Path
 
-from flask import Flask, abort, jsonify, render_template, request, send_file
 from anthropic import Anthropic
+from flask import Flask, abort, jsonify, render_template, request, send_file
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from scripts.generate import (  # noqa: E402
-    CVError,
     DATA_EXAMPLE,
     DATA_FILE,
     ENV_EXAMPLE,
     ENV_FILE,
     ENV_PREFIX,
     TEMPLATES_DIR,
+    CVError,
     compile_pdf,
     render,
 )
@@ -66,7 +66,7 @@ def _read_env() -> dict:
         key = key.strip()
         value = value.strip().strip('"').strip("'")
         if key.startswith(ENV_PREFIX):
-            result[key[len(ENV_PREFIX):].lower()] = value
+            result[key[len(ENV_PREFIX) :].lower()] = value
     return result
 
 
@@ -82,7 +82,7 @@ def _write_env(values: dict) -> None:
             continue
         key = stripped.split("=", 1)[0].strip()
         if key.startswith(ENV_PREFIX):
-            short = key[len(ENV_PREFIX):].lower()
+            short = key[len(ENV_PREFIX) :].lower()
             if short in values:
                 out_lines.append(f'{key}="{_escape_env(values[short])}"')
                 seen.add(short)
@@ -106,17 +106,17 @@ def _read_data() -> dict:
 
 def _list_templates() -> list[str]:
     return sorted(
-        p.name for p in TEMPLATES_DIR.iterdir()
-        if p.is_file()
-        and p.suffix in {".tex", ".md"}
-        and p.name.lower() != "readme.md"
+        p.name
+        for p in TEMPLATES_DIR.iterdir()
+        if p.is_file() and p.suffix in {".tex", ".md"} and p.name.lower() != "readme.md"
     )
 
 
 def _render_with_custom_data(template_name: str, out_dir: Path, custom_data: dict) -> Path:
     """Render a template with custom CV data (used for job matching)."""
-    from scripts.generate import build_environment, slugify
     from datetime import date
+
+    from scripts.generate import build_environment, slugify
 
     env_ctx = _read_env()
     context = {**custom_data, **env_ctx}
@@ -146,14 +146,16 @@ def index():
 
 @app.get("/api/state")
 def get_state():
-    return jsonify({
-        "env": _read_env(),
-        "env_keys": ENV_KEYS,
-        "data": _read_data(),
-        "templates": _list_templates(),
-        "env_file_exists": ENV_FILE.exists(),
-        "data_file_exists": DATA_FILE.exists(),
-    })
+    return jsonify(
+        {
+            "env": _read_env(),
+            "env_keys": ENV_KEYS,
+            "data": _read_data(),
+            "templates": _list_templates(),
+            "env_file_exists": ENV_FILE.exists(),
+            "data_file_exists": DATA_FILE.exists(),
+        }
+    )
 
 
 @app.post("/api/env")
@@ -223,10 +225,10 @@ Job Description:
 {job_description}
 
 Current job experience:
-- Title: {last_job.get('title', '')}
-- Company: {last_job.get('company', '')}
-- Current highlights: {json.dumps(last_job.get('highlights', []))}
-- Current tech: {json.dumps(last_job.get('tech', []))}
+- Title: {last_job.get("title", "")}
+- Company: {last_job.get("company", "")}
+- Current highlights: {json.dumps(last_job.get("highlights", []))}
+- Current tech: {json.dumps(last_job.get("tech", []))}
 
 Return ONLY a valid JSON object (no markdown, no extra text) with this exact structure:
 {{

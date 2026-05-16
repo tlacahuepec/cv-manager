@@ -52,7 +52,7 @@ def load_env_context() -> dict:
     ctx = {}
     for key, value in os.environ.items():
         if key.startswith(ENV_PREFIX):
-            ctx[key[len(ENV_PREFIX):].lower()] = value
+            ctx[key[len(ENV_PREFIX) :].lower()] = value
     if not ctx.get("full_name"):
         _die("CV_FULL_NAME is not set in .env")
     return ctx
@@ -116,10 +116,9 @@ def render(template_name: str, out_dir: Path) -> Path:
         template = jenv.get_template(template_name)
     except TemplateNotFound:
         available = sorted(
-            p.name for p in TEMPLATES_DIR.iterdir()
-            if p.is_file()
-            and p.suffix in {".tex", ".md"}
-            and p.name.lower() != "readme.md"
+            p.name
+            for p in TEMPLATES_DIR.iterdir()
+            if p.is_file() and p.suffix in {".tex", ".md"} and p.name.lower() != "readme.md"
         )
         _die(f"template {template_name!r} not found. Available: {', '.join(available)}")
 
@@ -136,6 +135,15 @@ def render(template_name: str, out_dir: Path) -> Path:
 
 
 LATEX_AUX_SUFFIXES = (".aux", ".log", ".out", ".toc", ".synctex.gz", ".fls", ".fdb_latexmk")
+
+# Templates containing this comment line will be compiled with xelatex instead of pdflatex.
+_XELATEX_MARKER = "% engine: xelatex"
+
+
+def _needs_xelatex(source: Path) -> bool:
+    """Check if a .tex file requires XeLaTeX (e.g. uses fontspec)."""
+    head = source.read_text(encoding="utf-8")[:2000]
+    return _XELATEX_MARKER in head
 
 
 def _run(cmd: list[str], cwd: Path) -> subprocess.CompletedProcess:
@@ -155,14 +163,22 @@ def compile_pdf(source: Path) -> Path:
     suffix = source.suffix.lower()
 
     if suffix == ".tex":
-        if not shutil.which("pdflatex"):
-            _die("pdflatex not found on PATH. Install MiKTeX (https://miktex.org/download) or TeX Live.")
-        cmd = ["pdflatex", "-interaction=nonstopmode", "-output-directory", str(out_dir), str(source)]
+        use_xelatex = _needs_xelatex(source)
+        engine = "xelatex" if use_xelatex else "pdflatex"
+        if not shutil.which(engine):
+            if use_xelatex:
+                _die(
+                    "xelatex not found on PATH. This template requires XeLaTeX for font support. "
+                    "Install MiKTeX (https://miktex.org/download) or TeX Live."
+                )
+            else:
+                _die("pdflatex not found on PATH. Install MiKTeX (https://miktex.org/download) or TeX Live.")
+        cmd = [engine, "-interaction=nonstopmode", "-output-directory", str(out_dir), str(source)]
         # Run twice so cross-references / TOC settle.
         for _ in range(2):
             result = _run(cmd, cwd=out_dir)
             if result.returncode != 0:
-                _print_failure("pdflatex", result)
+                _print_failure(engine, result)
         # Clean aux files.
         stem = source.stem
         for suf in LATEX_AUX_SUFFIXES:
@@ -171,7 +187,9 @@ def compile_pdf(source: Path) -> Path:
                 aux.unlink()
     elif suffix == ".md":
         if not shutil.which("pandoc"):
-            _die("pandoc not found on PATH. Install from https://pandoc.org/installing.html or `winget install JohnMacFarlane.Pandoc`.")
+            _die(
+                "pandoc not found on PATH. Install from https://pandoc.org/installing.html or `winget install JohnMacFarlane.Pandoc`."
+            )
         cmd = ["pandoc", str(source), "-o", str(pdf_path)]
         result = _run(cmd, cwd=out_dir)
         if result.returncode != 0:

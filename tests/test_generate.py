@@ -2,15 +2,12 @@
 
 from __future__ import annotations
 
-import json
 import subprocess
-from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
 import scripts.generate as gen
-
 
 # ---------------------------------------------------------------------------
 # slugify
@@ -205,9 +202,7 @@ class TestCompilePdf:
 
         with patch("scripts.generate.shutil.which", return_value="/usr/bin/pdflatex"):
             with patch("scripts.generate._run") as mock_run:
-                mock_run.return_value = subprocess.CompletedProcess(
-                    args=[], returncode=0, stdout="", stderr=""
-                )
+                mock_run.return_value = subprocess.CompletedProcess(args=[], returncode=0, stdout="", stderr="")
                 (tmp_path / "test.pdf").write_bytes(b"%PDF-fake")
                 gen.compile_pdf(tex_file)
 
@@ -220,9 +215,7 @@ class TestCompilePdf:
 
         with patch("scripts.generate.shutil.which", return_value="/usr/bin/xelatex"):
             with patch("scripts.generate._run") as mock_run:
-                mock_run.return_value = subprocess.CompletedProcess(
-                    args=[], returncode=0, stdout="", stderr=""
-                )
+                mock_run.return_value = subprocess.CompletedProcess(args=[], returncode=0, stdout="", stderr="")
                 (tmp_path / "test.pdf").write_bytes(b"%PDF-fake")
                 gen.compile_pdf(tex_file)
 
@@ -251,9 +244,7 @@ class TestCompilePdf:
 
         with patch("scripts.generate.shutil.which", return_value="/usr/bin/pandoc"):
             with patch("scripts.generate._run") as mock_run:
-                mock_run.return_value = subprocess.CompletedProcess(
-                    args=[], returncode=0, stdout="", stderr=""
-                )
+                mock_run.return_value = subprocess.CompletedProcess(args=[], returncode=0, stdout="", stderr="")
                 gen.compile_pdf(md_file)
 
                 call_args = mock_run.call_args[0][0]
@@ -294,9 +285,7 @@ class TestCompilePdf:
 
         with patch("scripts.generate.shutil.which", return_value="/usr/bin/pdflatex"):
             with patch("scripts.generate._run") as mock_run:
-                mock_run.return_value = subprocess.CompletedProcess(
-                    args=[], returncode=0, stdout="", stderr=""
-                )
+                mock_run.return_value = subprocess.CompletedProcess(args=[], returncode=0, stdout="", stderr="")
                 (tmp_path / "test.pdf").write_bytes(b"%PDF-fake")
                 gen.compile_pdf(tex_file)
 

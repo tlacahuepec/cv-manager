@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff
+      - run: ruff check .
+      - run: ruff format --check .
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - run: pytest tests/ -v --cov=scripts.generate --cov-report=term-missing
+
+  validate-templates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - run: pip install -r requirements.txt
+      - name: Validate Jinja2 template syntax
+        run: |
+          python -c "
+          from pathlib import Path
+          from jinja2 import Environment, FileSystemLoader
+
+          templates_dir = Path('templates')
+          errors = []
+
+          for tpl in sorted(templates_dir.iterdir()):
+              if not tpl.is_file() or tpl.suffix not in ('.tex', '.md') or tpl.name.lower() == 'readme.md':
+                  continue
+              kwargs = {}
+              if tpl.suffix == '.tex':
+                  kwargs = dict(
+                      variable_start_string='<<', variable_end_string='>>',
+                      block_start_string='<%', block_end_string='%>',
+                      comment_start_string='<#', comment_end_string='#>',
+                  )
+              env = Environment(loader=FileSystemLoader(str(templates_dir)), **kwargs)
+              try:
+                  env.get_template(tpl.name)
+                  print(f'  OK: {tpl.name}')
+              except Exception as e:
+                  errors.append(f'{tpl.name}: {e}')
+                  print(f'  FAIL: {tpl.name}: {e}')
+
+          if errors:
+              raise SystemExit(f'{len(errors)} template(s) have syntax errors')
+          print(f'All templates valid.')
+          "
