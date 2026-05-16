@@ -199,4 +199,50 @@ $("#match-btn").addEventListener("click", async () => {
   flash(status, `downloaded ${filename}`);
 });
 
+$("#cover-letter-btn").addEventListener("click", async () => {
+  const status = $("#match-status");
+  const jobDesc = $("#job-description").value.trim();
+
+  if (!jobDesc) {
+    flash(status, "please paste a job description", false);
+    return;
+  }
+
+  status.textContent = "generating cover letter...";
+  status.className = "status";
+
+  const res = await fetch("/api/cover-letter", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      job_description: jobDesc,
+      recipient_name: $("#cl-recipient-name").value.trim(),
+      recipient_company: $("#cl-recipient-company").value.trim(),
+      pdf: $("#cl-pdf-checkbox").checked,
+    }),
+  });
+
+  if (!res.ok) {
+    let msg = "error";
+    try { msg = (await res.json()).error || msg; } catch {}
+    status.textContent = msg;
+    status.className = "status err";
+    return;
+  }
+
+  const disposition = res.headers.get("content-disposition") || "";
+  const match = disposition.match(/filename="?([^"]+)"?/);
+  const filename = match ? match[1] : "cover_letter";
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  flash(status, `downloaded ${filename}`);
+});
+
 loadState();

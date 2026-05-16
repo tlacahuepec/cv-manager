@@ -274,6 +274,94 @@ Guidelines:
     return send_file(out_path, as_attachment=True, download_name=out_path.name)
 
 
+@app.post("/api/cover-letter")
+def cover_letter():
+    payload = request.get_json(silent=True) or {}
+    job_description = (payload.get("job_description") or "").strip()
+    want_pdf = bool(payload.get("pdf", False))
+    recipient_name = (payload.get("recipient_name") or "").strip()
+    recipient_company = (payload.get("recipient_company") or "").strip()
+
+    if not job_description:
+        return jsonify({"ok": False, "error": "job_description is required"}), 400
+
+    try:
+        from datetime import date
+
+        from scripts.generate import build_environment, slugify
+
+        data = _read_data()
+        env_ctx = _read_env()
+
+        client = Anthropic()
+
+        experiences_summary = json.dumps(data.get("experiences", [])[:3], indent=2)
+        skills_summary = json.dumps(data.get("skills", []), indent=2)
+
+        prompt = f"""You are a professional cover letter writer. Write a tailored cover letter body for this candidate applying to a specific job.
+
+Job Description:
+{job_description}
+
+Candidate Info:
+- Name: {env_ctx.get("full_name", "")}
+- Headline: {env_ctx.get("headline", "")}
+- Summary: {env_ctx.get("summary", "")}
+
+Recent Experience:
+{experiences_summary}
+
+Skills:
+{skills_summary}
+
+Return ONLY the body paragraphs of the cover letter (no salutation, no closing, no signature). Write 3-4 paragraphs that:
+1. Open with enthusiasm for the specific role and company
+2. Highlight 2-3 relevant achievements from their experience that directly match the job requirements
+3. Connect their skills to the company's needs
+4. Close with a forward-looking statement about contributing to the team
+
+Keep the tone professional but personable. Be specific — reference actual achievements and technologies from their experience that match the job. Do not use generic filler. Total length: 250-350 words."""
+
+        response = client.messages.create(
+            model="claude-opus-4-7",
+            max_tokens=1000,
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        letter_body = response.content[0].text.strip()
+
+        context = {
+            **env_ctx,
+            "letter_date": date.today().strftime("%B %d, %Y"),
+            "recipient_name": recipient_name,
+            "recipient_company": recipient_company,
+            "recipient_address": "",
+            "salutation": f"Hiring Manager at {recipient_company}" if recipient_company else "Hiring Manager",
+            "letter_body": letter_body,
+        }
+
+        jenv = build_environment("cover_letter.tex")
+        template = jenv.get_template("cover_letter.tex")
+        rendered = template.render(**context)
+
+        name_slug = slugify(env_ctx["full_name"])
+        today = date.today().strftime("%Y%m%d")
+        out_dir = ROOT / "resumes"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_path = out_dir / f"{name_slug}_cover_letter_{today}.tex"
+        out_path.write_text(rendered, encoding="utf-8")
+
+        if want_pdf:
+            out_path = compile_pdf(out_path)
+
+    except CVError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+    except Exception as exc:
+        return jsonify({"ok": False, "error": f"Internal error: {str(exc)}"}), 500
+
+    return send_file(out_path, as_attachment=True, download_name=out_path.name)
+
+
 def main() -> None:
     app.run(host="127.0.0.1", port=5000, debug=False)
 
