@@ -61,6 +61,22 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
+## Development
+
+```bash
+# Install dev dependencies (includes pytest, ruff, pre-commit)
+pip install -r requirements-dev.txt
+
+# Set up pre-commit hooks (secret scanning, linting, formatting)
+pre-commit install
+
+# Run hooks manually against all files
+pre-commit run --all-files
+
+# Run tests
+pytest tests/ -v
+```
+
 ## Workflow (current)
 
 1. Edit `.env` and `data/cv_data.private.json`.
@@ -154,7 +170,7 @@ Features:
 
 - Never commit `.env` or any `*.private.*` file. They are already gitignored.
 - If you accidentally stage one: `git restore --staged <file>` before commit.
-- For extra safety, consider a `detect-secrets` pre-commit hook (Phase 2+).
+- Pre-commit hooks with `detect-secrets` are configured to block accidental secret commits.
 
 ## Changelog
 
