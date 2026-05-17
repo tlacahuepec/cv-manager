@@ -45,3 +45,18 @@ def _gemini_complete(prompt: str, max_tokens: int) -> str:
         generation_config=genai.types.GenerationConfig(max_output_tokens=max_tokens),
     )
     return response.text.strip()
+
+
+if __name__ == "__main__":
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
+    provider = os.environ.get("AI_PROVIDER", "anthropic")
+    print(f"Testing AI provider: {provider}")
+    try:
+        result = ai_complete("Respond with only: OK", max_tokens=10)
+        print(f"Response: {result}")
+    except CVError as e:
+        print(f"Error: {e}")
+        raise SystemExit(1)
