@@ -247,4 +247,49 @@ $("#cover-letter-btn").addEventListener("click", async () => {
   flash(status, `downloaded ${filename}`);
 });
 
+async function loadHistory() {
+  const container = $("#history-list");
+  try {
+    const res = await fetch("/api/history");
+    const entries = await res.json();
+    if (!entries.length) {
+      container.innerHTML = '<p class="muted">No generations yet.</p>';
+      return;
+    }
+    container.innerHTML = entries.map(e => {
+      const date = new Date(e.timestamp).toLocaleString();
+      const badge = e.matched ? ' <span class="badge">matched</span>' :
+                    e.is_cover_letter ? ' <span class="badge">cover letter</span>' : '';
+      const disabled = e.available ? '' : ' disabled title="File no longer on disk"';
+      return `<div class="history-entry">
+        <span class="history-meta">${date} &mdash; <code>${e.template}</code>${badge}</span>
+        <span class="history-file">${e.filename}</span>
+        <button class="history-dl"${disabled} data-id="${e.id}">Download</button>
+      </div>`;
+    }).join("");
+  } catch {
+    container.innerHTML = '<p class="muted">Could not load history.</p>';
+  }
+}
+
+document.addEventListener("click", async (ev) => {
+  if (!ev.target.classList.contains("history-dl")) return;
+  const id = ev.target.dataset.id;
+  const res = await fetch(`/api/history/${id}/download`);
+  if (!res.ok) return;
+  const disposition = res.headers.get("content-disposition") || "";
+  const match = disposition.match(/filename="?([^"]+)"?/);
+  const filename = match ? match[1] : "cv";
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+});
+
 loadState();
+loadHistory();

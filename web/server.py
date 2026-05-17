@@ -32,6 +32,7 @@ from scripts.generate import (  # noqa: E402
     export_format,
     render,
 )
+from scripts.history import get_history, log_generation  # noqa: E402
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
@@ -202,6 +203,7 @@ def generate():
             out_path = export_format(out_path, output_format)
     except CVError as exc:
         return jsonify({"ok": False, "error": str(exc)}), 400
+    log_generation(filename=out_path.name, template=template)
     return send_file(out_path, as_attachment=True, download_name=out_path.name)
 
 
@@ -277,6 +279,7 @@ Guidelines:
     except Exception as exc:
         return jsonify({"ok": False, "error": f"Internal error: {str(exc)}"}), 500
 
+    log_generation(filename=out_path.name, template=template, matched=True, job_title=job_description[:80])
     return send_file(out_path, as_attachment=True, download_name=out_path.name)
 
 
@@ -365,7 +368,35 @@ Keep the tone professional but personable. Be specific — reference actual achi
     except Exception as exc:
         return jsonify({"ok": False, "error": f"Internal error: {str(exc)}"}), 500
 
+    log_generation(
+        filename=out_path.name,
+        template="cover_letter.tex",
+        is_cover_letter=True,
+        job_title=job_description[:80],
+    )
     return send_file(out_path, as_attachment=True, download_name=out_path.name)
+
+
+@app.get("/api/history")
+def history():
+    entries = get_history()
+    resumes_dir = ROOT / "resumes"
+    for entry in entries:
+        entry["available"] = (resumes_dir / entry["filename"]).exists()
+    return jsonify(entries)
+
+
+@app.get("/api/history/<entry_id>/download")
+def history_download(entry_id):
+    from scripts.history import get_entry
+
+    entry = get_entry(entry_id)
+    if not entry:
+        return jsonify({"ok": False, "error": "entry not found"}), 404
+    file_path = ROOT / "resumes" / entry["filename"]
+    if not file_path.exists():
+        return jsonify({"ok": False, "error": "file no longer exists"}), 404
+    return send_file(file_path, as_attachment=True, download_name=entry["filename"])
 
 
 def main() -> None:
