@@ -21,6 +21,7 @@ async function loadState() {
   renderDataTextarea();
   renderTemplateSelect();
   renderMatchTemplateSelect();
+  renderAtsTemplateSelect();
   $("#env-warning").hidden = state.env_file_exists;
   $("#data-warning").hidden = state.data_file_exists;
 }
@@ -61,6 +62,17 @@ function renderTemplateSelect() {
 
 function renderMatchTemplateSelect() {
   const select = $("#match-template-select");
+  select.innerHTML = "";
+  for (const name of state.templates) {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    select.appendChild(opt);
+  }
+}
+
+function renderAtsTemplateSelect() {
+  const select = $("#ats-template-select");
   select.innerHTML = "";
   for (const name of state.templates) {
     const opt = document.createElement("option");
@@ -289,6 +301,62 @@ document.addEventListener("click", async (ev) => {
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
+});
+
+$("#ats-btn").addEventListener("click", async () => {
+  const status = $("#ats-status");
+  const results = $("#ats-results");
+  const card = $("#ats-score-card");
+
+  status.textContent = "analyzing ATS compatibility...";
+  status.className = "status";
+  results.hidden = true;
+
+  const jobDesc = $("#job-description") ? $("#job-description").value.trim() : "";
+
+  const res = await fetch("/api/ats-check", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      template: $("#ats-template-select").value,
+      job_description: jobDesc,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.ok) {
+    status.textContent = data.error || "error";
+    status.className = "status err";
+    return;
+  }
+
+  status.textContent = "";
+
+  const scoreColor = data.score >= 80 ? "#2a8" : data.score >= 60 ? "#e90" : "#c33";
+  const cats = data.categories;
+
+  card.innerHTML = `
+    <div class="ats-total" style="border-color: ${scoreColor}">
+      <span class="ats-number" style="color: ${scoreColor}">${data.score}</span>
+      <span class="ats-label">/ 100</span>
+    </div>
+    <div class="ats-categories">
+      ${Object.entries(cats).map(([name, c]) => `
+        <div class="ats-cat">
+          <strong>${name}</strong>: ${c.score}/25
+          <span class="muted">&mdash; ${c.feedback}</span>
+        </div>
+      `).join("")}
+    </div>
+    ${data.suggestions ? `
+      <div class="ats-suggestions">
+        <strong>Suggestions:</strong>
+        <ul>${data.suggestions.map(s => `<li>${s}</li>`).join("")}</ul>
+      </div>
+    ` : ""}
+  `;
+  results.hidden = false;
 });
 
 loadState();

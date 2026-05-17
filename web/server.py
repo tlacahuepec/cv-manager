@@ -377,6 +377,78 @@ Keep the tone professional but personable. Be specific — reference actual achi
     return send_file(out_path, as_attachment=True, download_name=out_path.name)
 
 
+@app.post("/api/ats-check")
+def ats_check():
+    payload = request.get_json(silent=True) or {}
+    template = payload.get("template", "classic.tex")
+    job_description = (payload.get("job_description") or "").strip()
+
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+", template):
+        return jsonify({"ok": False, "error": "invalid template name"}), 400
+
+    try:
+        data = _read_data()
+        env_ctx = _read_env()
+        cv_content = json.dumps({**data, **env_ctx}, indent=2)
+
+        client = Anthropic()
+
+        job_context = ""
+        if job_description:
+            job_context = f"""
+
+Target Job Description (use this to evaluate keyword match):
+{job_description}
+"""
+
+        prompt = f"""You are an ATS (Applicant Tracking System) expert. Analyze this CV data and score its ATS compatibility.
+
+CV Content:
+{cv_content}
+
+Template being used: {template}
+{job_context}
+Score the CV across 4 categories (0-25 points each, total 0-100):
+
+1. **Structure** (25 pts): Are sections clearly named and standard (Experience, Education, Skills)? Is there a logical order? Are dates parseable?
+2. **Keywords** (25 pts): Are relevant industry keywords present? {"Does the CV match the job description keywords?" if job_description else "Are skills and technologies well-represented?"}
+3. **Formatting** (25 pts): Will the template parse cleanly in ATS? Are bullet points used? Is content in text (not images/tables)? Is length appropriate (1-2 pages)?
+4. **Content** (25 pts): Are achievements quantified? Are bullet points concise and impactful? Is there a clear professional summary?
+
+Return ONLY a valid JSON object (no markdown, no extra text) with this exact structure:
+{{
+  "score": <total 0-100>,
+  "categories": {{
+    "structure": {{"score": <0-25>, "feedback": "<one sentence>"}},
+    "keywords": {{"score": <0-25>, "feedback": "<one sentence>"}},
+    "formatting": {{"score": <0-25>, "feedback": "<one sentence>"}},
+    "content": {{"score": <0-25>, "feedback": "<one sentence>"}}
+  }},
+  "suggestions": ["<suggestion 1>", "<suggestion 2>", "<suggestion 3>"]
+}}
+
+Be specific and actionable in feedback. Reference actual content from the CV."""
+
+        response = client.messages.create(
+            model="claude-opus-4-7",
+            max_tokens=800,
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        response_text = response.content[0].text.strip()
+        try:
+            result = json.loads(response_text)
+        except json.JSONDecodeError:
+            raise CVError("Failed to parse ATS analysis response")
+
+        return jsonify({"ok": True, **result})
+
+    except CVError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+    except Exception as exc:
+        return jsonify({"ok": False, "error": f"Internal error: {str(exc)}"}), 500
+
+
 @app.get("/api/history")
 def history():
     entries = get_history()

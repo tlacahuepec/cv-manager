@@ -105,3 +105,21 @@ code { background: #f0f0f0; padding: 0.1em 0.3em; border-radius: 3px; font-size:
   font-size: 0.75rem;
   font-weight: 600;
 }
+
+.ats-total {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  border: 3px solid;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  margin: 0.75rem 0;
+}
+.ats-number { font-size: 2rem; font-weight: 700; }
+.ats-label { font-size: 1rem; color: #666; }
+.ats-categories { margin: 0.5rem 0; }
+.ats-cat { padding: 0.3rem 0; font-size: 0.85rem; }
+.ats-cat strong { text-transform: capitalize; }
+.ats-suggestions { margin-top: 0.75rem; font-size: 0.85rem; }
+.ats-suggestions ul { margin: 0.25rem 0 0 1.2rem; padding: 0; }
+.ats-suggestions li { margin: 0.2rem 0; }
