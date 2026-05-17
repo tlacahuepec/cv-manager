@@ -15,18 +15,30 @@ information kept **out of version control**.
 ```
 cv-manager/
 ├── data/
-│   ├── cv_data.example.json   # Schema reference (committed)
-│   └── cv_data.private.json   # Your real structured data (gitignored)
+│   ├── cv_data.example.json      # Schema reference (committed)
+│   └── cv_data.private.json      # Your real structured data (gitignored)
 ├── templates/
-│   ├── classic.tex            # LaTeX template (uses << >> / <% %>)
-│   ├── classic.md             # Markdown template (uses {{ }} / {% %})
-│   └── README.md              # Template authoring guide
-├── resumes/                   # Generated outputs (PDFs gitignored)
-├── scripts/                   # Generator (Phase 2)
-├── .env.example               # Identity/contact placeholders (committed)
-├── .env                       # Your real identity/contact (gitignored)
-├── .gitignore
+│   ├── classic.tex               # Two-page LaTeX (uses << >> / <% %>)
+│   ├── classic.md                # Markdown (uses {{ }} / {% %})
+│   ├── modern.tex                # Two-column sidebar LaTeX
+│   ├── minimal.md                # ATS-friendly plain Markdown
+│   ├── awesome.tex               # Awesome-CV inspired LaTeX
+│   ├── cover_letter.tex          # Cover letter LaTeX
+│   └── README.md                 # Template authoring guide
+├── scripts/
+│   ├── generate.py               # CLI CV generator
+│   ├── generate_previews.py      # Template thumbnail generator
+│   └── history.py                # Generation history utilities
+├── web/
+│   ├── server.py                 # Flask app (localhost only)
+│   ├── static/                   # JS, CSS, preview images
+│   └── templates/                # HTML templates
+├── tests/
+├── resumes/                      # Generated outputs (gitignored)
+├── .env.example                  # Identity/contact placeholders (committed)
+├── .env                          # Your real identity/contact (gitignored)
 ├── requirements.txt
+├── requirements-dev.txt
 └── README.md
 ```
 
@@ -55,7 +67,7 @@ Copy-Item .env.example .env
 Copy-Item data\cv_data.example.json data\cv_data.private.json
 # Edit both files in your editor.
 
-# 3. (Optional, ready for Phase 2) install Python deps
+# 3. Install Python dependencies
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
@@ -77,12 +89,6 @@ pre-commit run --all-files
 pytest tests/ -v
 ```
 
-## Workflow (current)
-
-1. Edit `.env` and `data/cv_data.private.json`.
-2. Edit a template under `templates/` if you want a new look.
-3. Run the generator to produce a CV under `resumes/`.
-
 ## Generating a CV
 
 After completing **Setup**, run:
@@ -92,10 +98,13 @@ After completing **Setup**, run:
 python scripts/generate.py
 
 # pick a different template
-python scripts/generate.py --template classic.md
+python scripts/generate.py --template modern.tex
 
-# also compile to PDF (requires pdflatex for .tex, pandoc for .md)
+# compile to PDF (requires pdflatex for .tex, pandoc for .md)
 python scripts/generate.py --template classic.tex --pdf
+
+# export to additional formats (requires pandoc)
+python scripts/generate.py --template classic.tex --pdf --format docx,html
 ```
 
 Output lands at `resumes/{name_slug}_{template}_{YYYYMMDD}.{ext}` — e.g.
@@ -141,9 +150,8 @@ pandoc resumes\jane_doe_classic_20260510.md -o resumes\jane_doe_classic_20260510
 
 ## Web UI
 
-A small Flask app provides a browser editor for `.env` and the private JSON,
-plus a one-click generate/download button. It binds to **localhost only** and
-refuses non-loopback connections.
+A local Flask app provides a full-featured browser interface. It binds to
+**localhost only** and refuses non-loopback connections.
 
 ```powershell
 .\.venv\Scripts\python.exe -m web.server
@@ -152,19 +160,24 @@ refuses non-loopback connections.
 
 Features:
 
-- Edit identity/contact fields, save to `.env`.
-- Edit the structured JSON in a textarea (validated before save).
-- Pick a template, optionally compile to PDF, download the result.
+- Edit identity/contact fields and save to `.env`
+- Edit structured JSON with live validation
+- Pick a template from a visual grid (with preview thumbnails)
+- Generate in PDF, DOCX, or HTML and download instantly
+- **AI Job Matching** — paste a job description, get a CV tailored to that role
+- **AI Cover Letter** — generate a personalized cover letter from your profile + job description
+- **ATS Compatibility Checker** — score your CV 0–100 across structure, keywords, formatting, and content
+- **Generation History** — browse and re-download past CVs
 
 ## Roadmap
 
-- **Phase 1:** structure, privacy, templates, dependencies.
-- **Phase 2:** `scripts/generate.py` — render Jinja templates from `.env` +
-  private JSON.
-- **Phase 2.5:** `--pdf` flag auto-runs `pdflatex` / `pandoc`.
-- **Phase 3 (this commit):** Flask web UI (localhost-only) to edit data and
-  download generated CVs.
-- **Phase 4:** More templates (modern, minimal), version history, CI builds.
+- ~~Phase 1:~~ Structure, privacy model, templates, dependencies.
+- ~~Phase 2:~~ CLI generator (`scripts/generate.py`).
+- ~~Phase 2.5:~~ PDF compilation (`--pdf`) with auto-detected engines.
+- ~~Phase 3:~~ Flask web UI — edit, generate, download.
+- ~~Phase 4:~~ Additional templates (modern, minimal, awesome), export formats
+  (DOCX, HTML), AI features (job matching, cover letters, ATS checker),
+  template previews, generation history, CI pipeline.
 
 ## Security notes
 
