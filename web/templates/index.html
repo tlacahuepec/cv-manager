@@ -42,7 +42,14 @@
         <label>Template
           <select id="template-select"></select>
         </label>
-        <label><input type="checkbox" id="pdf-checkbox"> Compile to PDF</label>
+        <label>Format
+          <select id="format-select">
+            <option value="">Source only</option>
+            <option value="pdf">PDF</option>
+            <option value="docx">DOCX</option>
+            <option value="html">HTML</option>
+          </select>
+        </label>
         <button id="generate-btn" type="button">Generate &amp; download</button>
       </div>
       <pre id="generate-status" class="status"></pre>

@@ -325,3 +325,62 @@ class TestMain:
             mock_compile.return_value = pdf_path
             gen.main()
             mock_compile.assert_called_once()
+
+    def test_format_flag_calls_export(self, project_root, monkeypatch, capsys):
+        monkeypatch.setattr("sys.argv", ["generate.py", "--format", "docx,html"])
+        docx_path = project_root / "resumes" / "fake.docx"
+        html_path = project_root / "resumes" / "fake.html"
+        with patch("scripts.generate.export_format") as mock_export:
+            mock_export.side_effect = [docx_path, html_path]
+            gen.main()
+            assert mock_export.call_count == 2
+
+
+# ---------------------------------------------------------------------------
+# export_format
+# ---------------------------------------------------------------------------
+
+
+class TestExportFormat:
+    def test_docx_export(self, tmp_path):
+        md_file = tmp_path / "test.md"
+        md_file.write_text("# Hello\n", encoding="utf-8")
+
+        with patch("scripts.generate.shutil.which", return_value="/usr/bin/pandoc"):
+            with patch("scripts.generate._run") as mock_run:
+                mock_run.return_value = subprocess.CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+                result = gen.export_format(md_file, "docx")
+                assert result.suffix == ".docx"
+                call_args = mock_run.call_args[0][0]
+                assert "pandoc" in call_args[0]
+                assert "--standalone" in call_args
+
+    def test_html_export_embeds_resources(self, tmp_path):
+        md_file = tmp_path / "test.md"
+        md_file.write_text("# Hello\n", encoding="utf-8")
+
+        with patch("scripts.generate.shutil.which", return_value="/usr/bin/pandoc"):
+            with patch("scripts.generate._run") as mock_run:
+                mock_run.return_value = subprocess.CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+                result = gen.export_format(md_file, "html")
+                assert result.suffix == ".html"
+                call_args = mock_run.call_args[0][0]
+                assert "--embed-resources" in call_args
+
+    def test_missing_pandoc(self, tmp_path):
+        md_file = tmp_path / "test.md"
+        md_file.write_text("# Hello\n", encoding="utf-8")
+
+        with patch("scripts.generate.shutil.which", return_value=None):
+            with pytest.raises(gen.CVError, match="pandoc not found"):
+                gen.export_format(md_file, "docx")
+
+    def test_pandoc_failure_raises(self, tmp_path):
+        md_file = tmp_path / "test.md"
+        md_file.write_text("# Hello\n", encoding="utf-8")
+
+        with patch("scripts.generate.shutil.which", return_value="/usr/bin/pandoc"):
+            with patch("scripts.generate._run") as mock_run:
+                mock_run.return_value = subprocess.CompletedProcess(args=[], returncode=1, stdout="Error", stderr="")
+                with pytest.raises(gen.CVError, match="failed"):
+                    gen.export_format(md_file, "docx")

@@ -29,6 +29,7 @@ from scripts.generate import (  # noqa: E402
     TEMPLATES_DIR,
     CVError,
     compile_pdf,
+    export_format,
     render,
 )
 
@@ -188,12 +189,17 @@ def generate():
     payload = request.get_json(silent=True) or {}
     template = payload.get("template", "classic.tex")
     want_pdf = bool(payload.get("pdf", False))
+    output_format = (payload.get("format") or "").strip().lower()
     if not re.fullmatch(r"[A-Za-z0-9_.-]+", template):
         return jsonify({"ok": False, "error": "invalid template name"}), 400
+    if output_format and output_format not in ("pdf", "docx", "html"):
+        return jsonify({"ok": False, "error": f"unsupported format: {output_format}"}), 400
     try:
         out_path = render(template, ROOT / "resumes")
-        if want_pdf:
+        if output_format == "pdf" or want_pdf:
             out_path = compile_pdf(out_path)
+        elif output_format in ("docx", "html"):
+            out_path = export_format(out_path, output_format)
     except CVError as exc:
         return jsonify({"ok": False, "error": str(exc)}), 400
     return send_file(out_path, as_attachment=True, download_name=out_path.name)

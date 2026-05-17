@@ -124,12 +124,14 @@ $("#generate-btn").addEventListener("click", async () => {
   const status = $("#generate-status");
   status.textContent = "generating...";
   status.className = "status";
+  const format = $("#format-select").value;
   const res = await fetch("/api/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       template: $("#template-select").value,
-      pdf: $("#pdf-checkbox").checked,
+      format: format,
+      pdf: format === "pdf",
     }),
   });
   if (!res.ok) {
