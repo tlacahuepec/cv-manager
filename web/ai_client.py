@@ -36,14 +36,16 @@ def _gemini_complete(prompt: str, max_tokens: int) -> str:
     if not api_key:
         raise CVError("GEMINI_API_KEY is not set. Add it to your .env file.")
 
-    from google import generativeai as genai
+    from google import genai
 
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-2.5-flash")
-    response = model.generate_content(
-        prompt,
-        generation_config=genai.types.GenerationConfig(max_output_tokens=max_tokens),
+    client = genai.Client(api_key=api_key)
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt,
+        config={"max_output_tokens": max_tokens},
     )
+    if not response.text:
+        raise CVError("Gemini returned an empty response. Check your prompt or API key.")
     return response.text.strip()
 
 
@@ -55,7 +57,7 @@ if __name__ == "__main__":
     provider = os.environ.get("AI_PROVIDER", "anthropic")
     print(f"Testing AI provider: {provider}")
     try:
-        result = ai_complete("Respond with only: OK", max_tokens=10)
+        result = ai_complete("Say OK", max_tokens=20)
         print(f"Response: {result}")
     except CVError as e:
         print(f"Error: {e}")
