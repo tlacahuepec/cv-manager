@@ -123,3 +123,49 @@ code { background: #f0f0f0; padding: 0.1em 0.3em; border-radius: 3px; font-size:
 .ats-suggestions { margin-top: 0.75rem; font-size: 0.85rem; }
 .ats-suggestions ul { margin: 0.25rem 0 0 1.2rem; padding: 0; }
 .ats-suggestions li { margin: 0.2rem 0; }
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.template-card {
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 0.5rem;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  background: #fff;
+}
+.template-card:hover { border-color: #90c0e8; }
+.template-card.selected {
+  border-color: #2a6db0;
+  box-shadow: 0 0 0 2px rgba(42, 109, 176, 0.2);
+}
+.template-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 3px;
+  background: #f5f5f5;
+}
+.template-card .placeholder {
+  width: 100%;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f4f8;
+  border-radius: 3px;
+  color: #888;
+  font-size: 0.8rem;
+}
+.template-card .tpl-name {
+  font-size: 0.8rem;
+  margin-top: 0.4rem;
+  color: #333;
+  font-weight: 500;
+}

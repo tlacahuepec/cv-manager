@@ -148,12 +148,18 @@ def index():
 
 @app.get("/api/state")
 def get_state():
+    previews_dir = Path(app.static_folder) / "previews"
+    previews = {}
+    if previews_dir.exists():
+        for png in previews_dir.glob("*.png"):
+            previews[png.stem] = f"/static/previews/{png.name}"
     return jsonify(
         {
             "env": _read_env(),
             "env_keys": ENV_KEYS,
             "data": _read_data(),
             "templates": _list_templates(),
+            "previews": previews,
             "env_file_exists": ENV_FILE.exists(),
             "data_file_exists": DATA_FILE.exists(),
         }

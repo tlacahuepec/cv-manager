@@ -13,13 +13,14 @@ const ENV_LABELS = {
 };
 
 let state = null;
+let selectedTemplate = null;
 
 async function loadState() {
   const res = await fetch("/api/state");
   state = await res.json();
   renderEnvForm();
   renderDataTextarea();
-  renderTemplateSelect();
+  renderTemplateGrid();
   renderMatchTemplateSelect();
   renderAtsTemplateSelect();
   $("#env-warning").hidden = state.env_file_exists;
@@ -49,14 +50,27 @@ function renderDataTextarea() {
   $("#data-json").value = JSON.stringify(state.data, null, 2);
 }
 
-function renderTemplateSelect() {
-  const select = $("#template-select");
-  select.innerHTML = "";
+function renderTemplateGrid() {
+  const grid = $("#template-grid");
+  grid.innerHTML = "";
+  selectedTemplate = state.templates[0] || null;
   for (const name of state.templates) {
-    const opt = document.createElement("option");
-    opt.value = name;
-    opt.textContent = name;
-    select.appendChild(opt);
+    const stem = name.replace(/\.[^.]+$/, "");
+    const card = document.createElement("div");
+    card.className = "template-card" + (name === selectedTemplate ? " selected" : "");
+    card.dataset.template = name;
+    const previewUrl = state.previews && state.previews[stem];
+    if (previewUrl) {
+      card.innerHTML = `<img src="${previewUrl}" alt="${name}"><div class="tpl-name">${name}</div>`;
+    } else {
+      card.innerHTML = `<div class="placeholder">No preview</div><div class="tpl-name">${name}</div>`;
+    }
+    card.addEventListener("click", () => {
+      grid.querySelectorAll(".template-card").forEach(c => c.classList.remove("selected"));
+      card.classList.add("selected");
+      selectedTemplate = name;
+    });
+    grid.appendChild(card);
   }
 }
 
@@ -134,6 +148,10 @@ $("#save-data").addEventListener("click", async () => {
 
 $("#generate-btn").addEventListener("click", async () => {
   const status = $("#generate-status");
+  if (!selectedTemplate) {
+    flash(status, "please select a template", false);
+    return;
+  }
   status.textContent = "generating...";
   status.className = "status";
   const format = $("#format-select").value;
@@ -141,7 +159,7 @@ $("#generate-btn").addEventListener("click", async () => {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      template: $("#template-select").value,
+      template: selectedTemplate,
       format: format,
       pdf: format === "pdf",
     }),
