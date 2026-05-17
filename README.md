@@ -169,6 +169,16 @@ Features:
 - **ATS Compatibility Checker** — score your CV 0–100 across structure, keywords, formatting, and content
 - **Generation History** — browse and re-download past CVs
 
+### AI provider configuration
+
+AI features require one of these providers (set in `.env`):
+
+```env
+AI_PROVIDER=[your-provider]                     # "gemini" or "anthropic"
+GEMINI_API_KEY=[your-gemini-key]                # required when AI_PROVIDER is gemini
+ANTHROPIC_API_KEY=[your-anthropic-key]          # required when AI_PROVIDER is anthropic
+```
+
 ## Roadmap
 
 - ~~Phase 1:~~ Structure, privacy model, templates, dependencies.

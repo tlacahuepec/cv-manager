@@ -14,7 +14,6 @@ import re
 import sys
 from pathlib import Path
 
-from anthropic import Anthropic
 from flask import Flask, abort, jsonify, render_template, request, send_file
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -33,6 +32,7 @@ from scripts.generate import (  # noqa: E402
     render,
 )
 from scripts.history import get_history, log_generation  # noqa: E402
+from web.ai_client import ai_complete  # noqa: E402
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
@@ -230,7 +230,6 @@ def match_job():
         if not data.get("experiences") or len(data["experiences"]) == 0:
             raise CVError("No experience entries found in CV data")
 
-        client = Anthropic()
         last_job = data["experiences"][-1]
 
         prompt = f"""You are a resume expert. Analyze the job description and the candidate's last job experience, then generate updated highlights and technologies that emphasize relevant skills.
@@ -257,20 +256,14 @@ Guidelines:
 - Ensure tech choices are realistic based on the job description and current experience
 - Do not include bullets already similar to existing ones"""
 
-        response = client.messages.create(
-            model="claude-opus-4-7",
-            max_tokens=500,
-            messages=[{"role": "user", "content": prompt}],
-        )
-
-        response_text = response.content[0].text.strip()
+        response_text = ai_complete(prompt, max_tokens=500)
         try:
             matched_data = json.loads(response_text)
         except json.JSONDecodeError:
-            raise CVError("Failed to parse Claude response as JSON")
+            raise CVError("Failed to parse AI response as JSON")
 
         if not isinstance(matched_data, dict):
-            raise CVError("Invalid response format from Claude")
+            raise CVError("Invalid response format from AI")
 
         matched_cv = copy.deepcopy(data)
         matched_cv["experiences"][-1]["highlights"] = matched_data.get("highlights", [])
@@ -308,8 +301,6 @@ def cover_letter():
         data = _read_data()
         env_ctx = _read_env()
 
-        client = Anthropic()
-
         experiences_summary = json.dumps(data.get("experiences", [])[:3], indent=2)
         skills_summary = json.dumps(data.get("skills", []), indent=2)
 
@@ -337,13 +328,7 @@ Return ONLY the body paragraphs of the cover letter (no salutation, no closing, 
 
 Keep the tone professional but personable. Be specific — reference actual achievements and technologies from their experience that match the job. Do not use generic filler. Total length: 250-350 words."""
 
-        response = client.messages.create(
-            model="claude-opus-4-7",
-            max_tokens=1000,
-            messages=[{"role": "user", "content": prompt}],
-        )
-
-        letter_body = response.content[0].text.strip()
+        letter_body = ai_complete(prompt, max_tokens=1000)
 
         context = {
             **env_ctx,
@@ -397,8 +382,6 @@ def ats_check():
         env_ctx = _read_env()
         cv_content = json.dumps({**data, **env_ctx}, indent=2)
 
-        client = Anthropic()
-
         job_context = ""
         if job_description:
             job_context = f"""
@@ -435,13 +418,7 @@ Return ONLY a valid JSON object (no markdown, no extra text) with this exact str
 
 Be specific and actionable in feedback. Reference actual content from the CV."""
 
-        response = client.messages.create(
-            model="claude-opus-4-7",
-            max_tokens=800,
-            messages=[{"role": "user", "content": prompt}],
-        )
-
-        response_text = response.content[0].text.strip()
+        response_text = ai_complete(prompt, max_tokens=800)
         try:
             result = json.loads(response_text)
         except json.JSONDecodeError:
