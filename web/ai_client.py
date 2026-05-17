@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 
 from scripts.generate import CVError
 
@@ -19,6 +20,13 @@ def ai_complete(prompt: str, max_tokens: int = 1000) -> str:
         raise CVError(f"Unknown AI_PROVIDER: {provider!r}. Use 'anthropic' or 'gemini'.")
 
 
+def _strip_code_fences(text: str) -> str:
+    """Remove markdown code fences that models sometimes wrap around JSON."""
+    stripped = re.sub(r"^```(?:json)?\s*\n?", "", text)
+    stripped = re.sub(r"\n?```\s*$", "", stripped)
+    return stripped.strip()
+
+
 def _anthropic_complete(prompt: str, max_tokens: int) -> str:
     from anthropic import Anthropic
 
@@ -28,7 +36,7 @@ def _anthropic_complete(prompt: str, max_tokens: int) -> str:
         max_tokens=max_tokens,
         messages=[{"role": "user", "content": prompt}],
     )
-    return response.content[0].text.strip()
+    return _strip_code_fences(response.content[0].text.strip())
 
 
 def _gemini_complete(prompt: str, max_tokens: int) -> str:
@@ -45,8 +53,9 @@ def _gemini_complete(prompt: str, max_tokens: int) -> str:
         config={"max_output_tokens": max_tokens},
     )
     if not response.text:
-        raise CVError("Gemini returned an empty response. Check your prompt or API key.")
-    return response.text.strip()
+        finish = response.candidates[0].finish_reason if response.candidates else "unknown"
+        raise CVError(f"Gemini returned an empty response (finish_reason={finish}).")
+    return _strip_code_fences(response.text.strip())
 
 
 if __name__ == "__main__":
@@ -57,7 +66,7 @@ if __name__ == "__main__":
     provider = os.environ.get("AI_PROVIDER", "anthropic")
     print(f"Testing AI provider: {provider}")
     try:
-        result = ai_complete("Say OK", max_tokens=20)
+        result = ai_complete("Say OK", max_tokens=100)
         print(f"Response: {result}")
     except CVError as e:
         print(f"Error: {e}")
