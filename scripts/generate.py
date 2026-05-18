@@ -200,26 +200,6 @@ def compile_pdf(source: Path) -> Path:
     return pdf_path
 
 
-def export_format(source: Path, fmt: str) -> Path:
-    """Export a rendered source file to an additional format (docx, html). Returns output path."""
-    if not shutil.which("pandoc"):
-        _die(
-            "pandoc not found on PATH. Install from https://pandoc.org/installing.html or `winget install JohnMacFarlane.Pandoc`."
-        )
-
-    out_path = source.with_suffix(f".{fmt}")
-    cmd = ["pandoc", str(source), "-o", str(out_path), "--standalone"]
-
-    if fmt == "html":
-        cmd.append("--embed-resources")
-
-    result = _run(cmd, cwd=source.parent)
-    if result.returncode != 0:
-        _print_failure("pandoc", result)
-
-    return out_path
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
@@ -238,11 +218,6 @@ def main() -> None:
         action="store_true",
         help="Also compile to PDF (requires pdflatex for .tex, pandoc for .md)",
     )
-    parser.add_argument(
-        "--format",
-        dest="formats",
-        help="Additional export formats, comma-separated (docx, html). Requires pandoc.",
-    )
     args = parser.parse_args()
 
     try:
@@ -252,13 +227,6 @@ def main() -> None:
         if args.pdf:
             pdf_path = compile_pdf(out_path)
             print(f"wrote {pdf_path.relative_to(ROOT)}")
-
-        if args.formats:
-            for fmt in args.formats.split(","):
-                fmt = fmt.strip().lower()
-                if fmt and fmt != "pdf":
-                    export_path = export_format(out_path, fmt)
-                    print(f"wrote {export_path.relative_to(ROOT)}")
     except CVError as exc:
         print(f"error: {exc}", file=sys.stderr)
         sys.exit(1)

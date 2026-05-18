@@ -50,7 +50,10 @@ def _gemini_complete(prompt: str, max_tokens: int) -> str:
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=prompt,
-        config={"max_output_tokens": max_tokens},
+        config={
+            "max_output_tokens": max_tokens,
+            "thinking_config": {"thinking_budget": 0},
+        },
     )
     if not response.text:
         finish = response.candidates[0].finish_reason if response.candidates else "unknown"

@@ -256,7 +256,7 @@ Guidelines:
 - Ensure tech choices are realistic based on the job description and current experience
 - Do not include bullets already similar to existing ones"""
 
-        response_text = ai_complete(prompt, max_tokens=500)
+        response_text = ai_complete(prompt, max_tokens=2000)
         try:
             matched_data = json.loads(response_text)
         except json.JSONDecodeError:
@@ -328,7 +328,7 @@ Return ONLY the body paragraphs of the cover letter (no salutation, no closing, 
 
 Keep the tone professional but personable. Be specific — reference actual achievements and technologies from their experience that match the job. Do not use generic filler. Total length: 250-350 words."""
 
-        letter_body = ai_complete(prompt, max_tokens=1000)
+        letter_body = ai_complete(prompt, max_tokens=2000)
 
         context = {
             **env_ctx,
@@ -418,11 +418,11 @@ Return ONLY a valid JSON object (no markdown, no extra text) with this exact str
 
 Be specific and actionable in feedback. Reference actual content from the CV."""
 
-        response_text = ai_complete(prompt, max_tokens=800)
+        response_text = ai_complete(prompt, max_tokens=2000)
         try:
             result = json.loads(response_text)
         except json.JSONDecodeError:
-            raise CVError("Failed to parse ATS analysis response")
+            raise CVError(f"Failed to parse ATS analysis response. Raw: {response_text[:300]}")
 
         return jsonify({"ok": True, **result})
 
