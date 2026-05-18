@@ -1,5 +1,26 @@
 const $ = (sel) => document.querySelector(sel);
 
+function initTabs() {
+  const tabs = document.querySelectorAll(".nav-tab");
+  const panels = document.querySelectorAll(".tab-panel");
+
+  function activate(tabName) {
+    tabs.forEach(t => t.classList.toggle("active", t.dataset.tab === tabName));
+    panels.forEach(p => p.classList.toggle("active", p.id === `tab-${tabName}`));
+    if (tabName === "history") loadHistory();
+  }
+
+  tabs.forEach(t => t.addEventListener("click", () => {
+    const name = t.dataset.tab;
+    activate(name);
+    history.replaceState(null, "", `#${name}`);
+  }));
+
+  const hash = location.hash.replace("#", "");
+  const valid = [...tabs].map(t => t.dataset.tab);
+  activate(valid.includes(hash) ? hash : "generate");
+}
+
 const ENV_LABELS = {
   full_name: "Full name",
   headline: "Headline",
@@ -379,3 +400,4 @@ $("#ats-btn").addEventListener("click", async () => {
 
 loadState();
 loadHistory();
+initTabs();

@@ -8,35 +8,18 @@
 <body>
   <header>
     <h1>cv-manager</h1>
-    <p class="muted">Local editor for <code>.env</code> + <code>data/cv_data.private.json</code>.</p>
   </header>
 
+  <nav id="main-nav">
+    <button class="nav-tab active" data-tab="generate">Generate</button>
+    <button class="nav-tab" data-tab="match">Job Match</button>
+    <button class="nav-tab" data-tab="ats">ATS Check</button>
+    <button class="nav-tab" data-tab="history">History</button>
+    <button class="nav-tab" data-tab="settings">Settings</button>
+  </nav>
+
   <main>
-    <section id="env-section">
-      <h2>Identity &amp; contact (.env)</h2>
-      <div id="env-warning" class="warning" hidden>
-        <code>.env</code> not found &mdash; showing values from <code>.env.example</code>.
-        Saving will create <code>.env</code>.
-      </div>
-      <form id="env-form"></form>
-      <button id="save-env" type="button">Save .env</button>
-      <span id="env-status" class="status"></span>
-    </section>
-
-    <section id="data-section">
-      <h2>Structured data (cv_data.private.json)</h2>
-      <div id="data-warning" class="warning" hidden>
-        <code>cv_data.private.json</code> not found &mdash; showing example schema.
-        Saving will create the private file.
-      </div>
-      <textarea id="data-json" spellcheck="false"></textarea>
-      <div class="row">
-        <button id="save-data" type="button">Save JSON</button>
-        <span id="data-status" class="status"></span>
-      </div>
-    </section>
-
-    <section id="generate-section">
+    <section id="tab-generate" class="tab-panel active">
       <h2>Generate</h2>
       <div id="template-grid" class="template-grid"></div>
       <div class="row">
@@ -53,7 +36,7 @@
       <pre id="generate-status" class="status"></pre>
     </section>
 
-    <section id="match-section">
+    <section id="tab-match" class="tab-panel">
       <h2>Match to Job Description</h2>
       <p class="muted">Customize your last job experience to match a specific job description while preserving all other CV data.</p>
       <label for="job-description">Paste job description:</label>
@@ -78,7 +61,7 @@
       <pre id="match-status" class="status"></pre>
     </section>
 
-    <section id="ats-section">
+    <section id="tab-ats" class="tab-panel">
       <h2>ATS Compatibility Check</h2>
       <p class="muted">Score your CV on ATS-friendliness. Optionally paste a job description for keyword matching.</p>
       <div class="row">
@@ -93,10 +76,36 @@
       </div>
     </section>
 
-    <section id="history-section">
+    <section id="tab-history" class="tab-panel">
       <h2>History</h2>
       <p class="muted">Recent CV generations. Click to re-download.</p>
       <div id="history-list"></div>
+    </section>
+
+    <section id="tab-settings" class="tab-panel">
+      <div class="settings-card">
+        <h2>Identity &amp; Contact (.env)</h2>
+        <div id="env-warning" class="warning" hidden>
+          <code>.env</code> not found &mdash; showing values from <code>.env.example</code>.
+          Saving will create <code>.env</code>.
+        </div>
+        <form id="env-form"></form>
+        <button id="save-env" type="button">Save .env</button>
+        <span id="env-status" class="status"></span>
+      </div>
+
+      <div class="settings-card">
+        <h2>Structured data (cv_data.private.json)</h2>
+        <div id="data-warning" class="warning" hidden>
+          <code>cv_data.private.json</code> not found &mdash; showing example schema.
+          Saving will create the private file.
+        </div>
+        <textarea id="data-json" spellcheck="false"></textarea>
+        <div class="row">
+          <button id="save-data" type="button">Save JSON</button>
+          <span id="data-status" class="status"></span>
+        </div>
+      </div>
     </section>
   </main>
 

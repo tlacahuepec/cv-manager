@@ -200,6 +200,21 @@ def compile_pdf(source: Path) -> Path:
     return pdf_path
 
 
+def export_format(source: Path, fmt: str) -> Path:
+    """Convert a rendered source file to the given format (docx, html) via pandoc."""
+    if not shutil.which("pandoc"):
+        raise CVError(
+            "pandoc not found on PATH. Install from https://pandoc.org/installing.html "
+            "or `winget install JohnMacFarlane.Pandoc`."
+        )
+    out_path = source.with_suffix(f".{fmt}")
+    cmd = ["pandoc", str(source), "-o", str(out_path)]
+    result = _run(cmd, cwd=source.parent)
+    if result.returncode != 0:
+        raise CVError(f"pandoc export to {fmt} failed: {result.stderr[:300]}")
+    return out_path
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
