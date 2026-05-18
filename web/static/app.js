@@ -41,11 +41,21 @@ async function loadState() {
   state = await res.json();
   renderEnvForm();
   renderDataTextarea();
+  renderDataView();
   renderTemplateGrid();
   renderMatchTemplateSelect();
   renderAtsTemplateSelect();
   $("#env-warning").hidden = state.env_file_exists;
   $("#data-warning").hidden = state.data_file_exists;
+}
+
+let dataEditing = false;
+
+function setDataEditing(editing) {
+  dataEditing = editing;
+  $("#data-view").hidden = editing;
+  $("#data-edit").hidden = !editing;
+  $("#data-edit-toggle").textContent = editing ? "Cancel" : "Edit";
 }
 
 let envEditing = false;
@@ -82,6 +92,100 @@ function renderEnvForm() {
 
 function renderDataTextarea() {
   $("#data-json").value = JSON.stringify(state.data, null, 2);
+}
+
+function formatDate(str) {
+  if (!str) return "";
+  if (str.toLowerCase() === "present") return "Present";
+  const parts = str.split("-");
+  if (parts.length === 2) {
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return `${months[parseInt(parts[1], 10) - 1]} ${parts[0]}`;
+  }
+  return str;
+}
+
+function renderDataView() {
+  const d = state.data;
+  const container = $("#data-view");
+  let html = "";
+
+  if (d.summary) {
+    html += `<div class="cv-section-title">Summary</div>`;
+    html += `<p class="cv-summary">${d.summary}</p>`;
+  }
+
+  if (d.experiences?.length) {
+    html += `<div class="cv-section-title">Experience</div>`;
+    for (const exp of d.experiences) {
+      html += `<div class="cv-card">
+        <div class="cv-card-header">
+          <div><span class="cv-card-title">${exp.title}</span> <span class="cv-card-subtitle">&mdash; ${exp.company}</span></div>
+          <span class="cv-card-dates">${formatDate(exp.start_date)} &ndash; ${formatDate(exp.end_date)}</span>
+        </div>
+        ${exp.location ? `<div class="cv-card-location">${exp.location}</div>` : ""}
+        ${exp.highlights?.length ? `<ul class="cv-highlights">${exp.highlights.map(h => `<li>${h}</li>`).join("")}</ul>` : ""}
+        ${exp.tech?.length ? `<div class="cv-tech-list">${exp.tech.map(t => `<span class="cv-tech-badge">${t}</span>`).join("")}</div>` : ""}
+      </div>`;
+    }
+  }
+
+  if (d.education?.length) {
+    html += `<div class="cv-section-title">Education</div>`;
+    for (const edu of d.education) {
+      html += `<div class="cv-card">
+        <div class="cv-card-header">
+          <div><span class="cv-card-title">${edu.degree}</span> <span class="cv-card-subtitle">&mdash; ${edu.institution}</span></div>
+          <span class="cv-card-dates">${formatDate(edu.start_date)} &ndash; ${formatDate(edu.end_date)}</span>
+        </div>
+        ${edu.location ? `<div class="cv-card-location">${edu.location}</div>` : ""}
+        ${edu.notes ? `<p class="cv-card-notes">${edu.notes}</p>` : ""}
+      </div>`;
+    }
+  }
+
+  if (d.skills?.length) {
+    html += `<div class="cv-section-title">Skills</div>`;
+    for (const group of d.skills) {
+      html += `<div class="cv-skills-group">
+        <span class="cv-skills-label">${group.category}</span>
+        <div class="cv-tech-list">${group.items.map(i => `<span class="cv-tech-badge">${i}</span>`).join("")}</div>
+      </div>`;
+    }
+  }
+
+  if (d.projects?.length) {
+    html += `<div class="cv-section-title">Projects</div>`;
+    for (const proj of d.projects) {
+      const nameHtml = proj.url ? `<a href="${proj.url}" target="_blank">${proj.name}</a>` : proj.name;
+      html += `<div class="cv-card">
+        <span class="cv-card-title">${nameHtml}</span>
+        ${proj.description ? `<p class="cv-card-notes">${proj.description}</p>` : ""}
+        ${proj.tech?.length ? `<div class="cv-tech-list">${proj.tech.map(t => `<span class="cv-tech-badge">${t}</span>`).join("")}</div>` : ""}
+      </div>`;
+    }
+  }
+
+  if (d.certifications?.length) {
+    html += `<div class="cv-section-title">Certifications</div>`;
+    for (const cert of d.certifications) {
+      const nameHtml = cert.url ? `<a href="${cert.url}" target="_blank">${cert.name}</a>` : cert.name;
+      html += `<div class="cv-card">
+        <div class="cv-card-header">
+          <span class="cv-card-title">${nameHtml}</span>
+          <span class="cv-card-dates">${cert.date || ""}</span>
+        </div>
+        ${cert.issuer ? `<div class="cv-card-subtitle">${cert.issuer}</div>` : ""}
+      </div>`;
+    }
+  }
+
+  if (d.languages?.length) {
+    html += `<div class="cv-section-title">Languages</div>`;
+    html += `<p class="cv-languages">${d.languages.map(l => `${l.name} (${l.level})`).join(", ")}</p>`;
+  }
+
+  container.innerHTML = html;
 }
 
 function renderTemplateGrid() {
@@ -169,6 +273,15 @@ $("#save-env").addEventListener("click", async () => {
   }
 });
 
+$("#data-edit-toggle").addEventListener("click", () => {
+  if (dataEditing) {
+    setDataEditing(false);
+  } else {
+    renderDataTextarea();
+    setDataEditing(true);
+  }
+});
+
 $("#save-data").addEventListener("click", async () => {
   const raw = $("#data-json").value;
   try {
@@ -185,8 +298,11 @@ $("#save-data").addEventListener("click", async () => {
   const body = await res.json();
   if (res.ok) {
     flash($("#data-status"), "saved");
+    state.data = JSON.parse(raw);
     state.data_file_exists = true;
     $("#data-warning").hidden = true;
+    renderDataView();
+    setDataEditing(false);
   } else {
     flash($("#data-status"), body.error || "error", false);
   }

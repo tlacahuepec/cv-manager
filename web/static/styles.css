@@ -226,3 +226,52 @@ code { background: #f0f0f0; padding: 0.1em 0.3em; border-radius: 3px; font-size:
   color: #333;
   font-weight: 500;
 }
+
+.cv-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2a6db0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.3rem;
+  margin: 1rem 0 0.5rem 0;
+}
+.cv-section-title:first-child { margin-top: 0; }
+.cv-summary { font-size: 0.9rem; color: #444; margin: 0.25rem 0 0.5rem 0; }
+.cv-card {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+}
+.cv-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+.cv-card-title { font-weight: 600; font-size: 0.95rem; }
+.cv-card-subtitle { color: #555; font-size: 0.88rem; }
+.cv-card-dates { color: #888; font-size: 0.82rem; white-space: nowrap; }
+.cv-card-location { color: #888; font-size: 0.82rem; margin-top: 0.1rem; }
+.cv-card-notes { font-size: 0.88rem; color: #555; margin: 0.3rem 0 0; }
+.cv-highlights {
+  list-style: disc;
+  margin: 0.4rem 0 0.4rem 1.2rem;
+  padding: 0;
+  font-size: 0.88rem;
+}
+.cv-highlights li { margin: 0.2rem 0; }
+.cv-tech-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.4rem; }
+.cv-tech-badge {
+  display: inline-block;
+  background: #e0f0ff;
+  color: #2a6db0;
+  padding: 0.15em 0.5em;
+  border-radius: 3px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+.cv-skills-group { margin-bottom: 0.6rem; }
+.cv-skills-label { font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 0.25rem; }
+.cv-languages { font-size: 0.9rem; color: #444; margin: 0.25rem 0; }

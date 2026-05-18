@@ -100,15 +100,21 @@
       </div>
 
       <div class="settings-card">
-        <h2>Structured data (cv_data.private.json)</h2>
+        <div class="settings-header">
+          <h2>Structured data (cv_data.private.json)</h2>
+          <button id="data-edit-toggle" type="button" class="edit-toggle">Edit</button>
+        </div>
         <div id="data-warning" class="warning" hidden>
           <code>cv_data.private.json</code> not found &mdash; showing example schema.
           Saving will create the private file.
         </div>
-        <textarea id="data-json" spellcheck="false"></textarea>
-        <div class="row">
-          <button id="save-data" type="button">Save JSON</button>
-          <span id="data-status" class="status"></span>
+        <div id="data-view"></div>
+        <div id="data-edit" hidden>
+          <textarea id="data-json" spellcheck="false"></textarea>
+          <div class="row">
+            <button id="save-data" type="button">Save</button>
+            <span id="data-status" class="status"></span>
+          </div>
         </div>
       </div>
     </section>
