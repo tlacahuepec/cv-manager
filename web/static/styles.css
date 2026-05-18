@@ -45,6 +45,28 @@ header h1 { margin-bottom: 0.2rem; }
   padding: 1rem 1.25rem;
   margin-bottom: 1.25rem;
 }
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.edit-toggle {
+  background: transparent;
+  border: 1px solid #2a6db0;
+  color: #2a6db0;
+  border-radius: 4px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.85rem;
+}
+.edit-toggle:hover { background: #f0f6ff; }
+
+#env-form input:disabled,
+#env-form textarea:disabled {
+  background: #fafafa;
+  border-color: transparent;
+  color: #333;
+  cursor: default;
+}
 
 section.tab-panel {
   background: #fff;
@@ -103,6 +125,7 @@ button {
 button:hover { background: #245a92; }
 
 .row { display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem; flex-wrap: wrap; }
+[hidden] { display: none !important; }
 
 .status { font-size: 0.85rem; color: #666; margin-left: 0.5rem; white-space: pre-wrap; }
 .status.ok { color: #1a7a3a; }

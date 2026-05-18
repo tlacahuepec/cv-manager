@@ -455,7 +455,7 @@ def history_download(entry_id):
 
 
 def main() -> None:
-    app.run(host="127.0.0.1", port=5000, debug=False)
+    app.run(host="127.0.0.1", port=5000, debug=True)
 
 
 if __name__ == "__main__":

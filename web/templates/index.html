@@ -84,14 +84,19 @@
 
     <section id="tab-settings" class="tab-panel">
       <div class="settings-card">
-        <h2>Identity &amp; Contact (.env)</h2>
+        <div class="settings-header">
+          <h2>Identity &amp; Contact (.env)</h2>
+          <button id="env-edit-toggle" type="button" class="edit-toggle">Edit</button>
+        </div>
         <div id="env-warning" class="warning" hidden>
           <code>.env</code> not found &mdash; showing values from <code>.env.example</code>.
           Saving will create <code>.env</code>.
         </div>
         <form id="env-form"></form>
-        <button id="save-env" type="button">Save .env</button>
-        <span id="env-status" class="status"></span>
+        <div id="env-actions" class="row" hidden>
+          <button id="save-env" type="button">Save</button>
+          <span id="env-status" class="status"></span>
+        </div>
       </div>
 
       <div class="settings-card">

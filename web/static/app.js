@@ -48,6 +48,18 @@ async function loadState() {
   $("#data-warning").hidden = state.data_file_exists;
 }
 
+let envEditing = false;
+
+function setEnvEditing(editing) {
+  envEditing = editing;
+  const form = $("#env-form");
+  for (const el of form.elements) {
+    el.disabled = !editing;
+  }
+  $("#env-actions").hidden = !editing;
+  $("#env-edit-toggle").textContent = editing ? "Cancel" : "Edit";
+}
+
 function renderEnvForm() {
   const form = $("#env-form");
   form.innerHTML = "";
@@ -65,6 +77,7 @@ function renderEnvForm() {
     wrap.appendChild(input);
     form.appendChild(wrap);
   }
+  setEnvEditing(false);
 }
 
 function renderDataTextarea() {
@@ -123,6 +136,14 @@ function flash(el, msg, ok = true) {
   if (ok) setTimeout(() => { if (el.textContent === msg) el.textContent = ""; }, 2500);
 }
 
+$("#env-edit-toggle").addEventListener("click", () => {
+  if (envEditing) {
+    renderEnvForm();
+  } else {
+    setEnvEditing(true);
+  }
+});
+
 $("#save-env").addEventListener("click", async () => {
   const form = $("#env-form");
   const values = {};
@@ -139,6 +160,10 @@ $("#save-env").addEventListener("click", async () => {
     flash($("#env-status"), "saved");
     state.env_file_exists = true;
     $("#env-warning").hidden = true;
+    for (const el of $("#env-form").elements) {
+      if (el.name) state.env[el.name] = el.value;
+    }
+    setEnvEditing(false);
   } else {
     flash($("#env-status"), body.error || "error", false);
   }
@@ -398,6 +423,6 @@ $("#ats-btn").addEventListener("click", async () => {
   results.hidden = false;
 });
 
+initTabs();
 loadState();
 loadHistory();
-initTabs();
